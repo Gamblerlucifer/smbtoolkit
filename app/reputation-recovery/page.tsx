@@ -1,15 +1,64 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Reputation Recovery — SMBkits",
-  description: "Trust rarely disappears instantly. It erodes quietly. SMBkits identifies recovery opportunities before dissatisfaction compounds publicly.",
+  title: "Reputation Recovery Systems for Local Businesses",
+  description:
+    "Recover customer trust and improve online reputation through private, brand-safe customer recovery systems. Identify recovery opportunities before dissatisfaction compounds publicly.",
+  keywords: [
+    "reputation recovery",
+    "online reputation repair",
+    "negative review recovery",
+    "customer trust recovery",
+    "business reputation repair",
+  ],
+  alternates: { canonical: "https://smbkits.com/reputation-recovery" },
+  openGraph: {
+    title: "Reputation Recovery Systems for Local Businesses",
+    description: "Recover customer trust through private, brand-safe customer recovery systems.",
+    url: "https://smbkits.com/reputation-recovery",
+    images: [{ url: "https://smbkits.com/og/reputation-recovery.jpg", width: 1200, height: 630, alt: "Reputation Recovery — SMBkits" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Reputation Recovery Systems | SMBkits",
+    description: "Recover customer trust through private, brand-safe recovery systems.",
+    images: ["https://smbkits.com/og/reputation-recovery.jpg"],
+  },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Service",
+      name: "Reputation Recovery",
+      provider: { "@type": "Organization", name: "SMBkits", url: "https://smbkits.com" },
+      description: "Private brand-safe customer trust recovery systems for independent premium businesses.",
+      url: "https://smbkits.com/reputation-recovery",
+      serviceType: "Reputation Management",
+      areaServed: "Worldwide",
+    },
+    {
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "How does reputation recovery work for premium businesses?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Premium businesses recover through restraint, not pressure. SMBkits identifies recovery opportunities, encourages satisfied customers naturally, and isolates critical experiences early — all through private, brand-aligned follow-up.",
+          },
+        },
+      ],
+    },
+  ],
 };
 
 export default function ReputationRecoveryPage() {
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400&display=swap');
         html { font-size: 16px; }
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
@@ -17,8 +66,8 @@ export default function ReputationRecoveryPage() {
           --bg: #08090C; --bg2: #0C0E13;
           --text: #E4DED4; --muted: #8B92A1; --dim: #5B6272;
           --border: rgba(255,255,255,0.05);
-          --font-display: 'Cormorant Garamond', Georgia, serif;
-          --font-body: 'DM Sans', sans-serif;
+          --font-display: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
+          --font-body: var(--font-dm-sans), 'DM Sans', sans-serif;
         }
         html { scroll-behavior: smooth; }
         body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-weight: 400; line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
@@ -27,47 +76,40 @@ export default function ReputationRecoveryPage() {
         .nav-cta { font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--border); padding: 0.65rem 1.75rem; text-decoration: none; transition: color 0.3s, border-color 0.3s; min-height: 44px; display: flex; align-items: center; }
         .nav-cta:hover { color: var(--text); border-color: var(--gold-border); }
         .nav-cta:focus { outline: 1px solid rgba(168,134,74,0.65); outline-offset: 2px; }
-
         .tool-hero { padding: 12rem 2rem 7rem; text-align: center; border-bottom: 1px solid var(--border); }
         .tool-hero-inner { max-width: 760px; margin: 0 auto; }
         .tool-kicker { font-size: 0.72rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--muted); margin-bottom: 2.5rem; }
         .tool-hero h1 { font-family: var(--font-display); font-size: clamp(2.5rem, 5.5vw, 4.5rem); font-weight: 300; line-height: 1.05; letter-spacing: -0.02em; margin-bottom: 2rem; }
         .tool-tagline { font-family: var(--font-display); font-size: clamp(1rem, 1.8vw, 1.25rem); font-style: italic; font-weight: 300; color: var(--muted); margin-bottom: 2rem; line-height: 1.5; }
-        .tool-desc { font-size: 1.05rem; color: #A7AFBD; line-height: 1.9; max-width: 600px; margin: 0 auto; }
+        .tool-desc { font-size: 1.05rem; color: #A7AFBD; line-height: 1.9; max-width: 600px; margin: 0 auto; font-weight: 400; }
         .rule { width: 36px; height: 1px; background: var(--gold); opacity: 0.5; margin: 2.5rem auto; }
-
         .content-wrap { max-width: 680px; margin: 0 auto; padding: 0 2rem; }
         .tool-section { padding: 5rem 2rem; border-bottom: 1px solid var(--border); }
         .tool-section:nth-child(even) { background: var(--bg2); }
         .section-lead { font-family: var(--font-display); font-size: clamp(1.5rem, 2.5vw, 2rem); font-weight: 300; line-height: 1.3; margin-bottom: 2rem; }
         .section-lead em { font-style: italic; color: var(--gold); }
-        .tool-section p { font-size: 1.05rem; color: #A7AFBD; line-height: 1.9; margin-bottom: 1.25rem; }
+        .tool-section p { font-size: 1.05rem; color: #A7AFBD; line-height: 1.9; margin-bottom: 1.25rem; font-weight: 400; }
         .tool-section p:last-child { margin-bottom: 0; }
         .impact-list { list-style: none; margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; }
         .impact-list li { font-size: 1rem; color: #A7AFBD; padding-left: 1.25rem; position: relative; line-height: 1.7; }
         .impact-list li::before { content: '—'; position: absolute; left: 0; color: var(--gold); opacity: 0.6; }
-
         .outcome-section { padding: 6rem 2rem; text-align: center; border-bottom: 1px solid var(--border); }
         .outcome-inner { max-width: 560px; margin: 0 auto; }
         .outcome-tag { font-size: 0.72rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--dim); margin-bottom: 2rem; }
         .outcome-section h2 { font-family: var(--font-display); font-size: clamp(1.5rem, 2.5vw, 2rem); font-weight: 300; line-height: 1.4; margin-bottom: 1.5rem; }
-        .outcome-section p { font-size: 1.05rem; color: #A7AFBD; line-height: 1.9; margin-bottom: 0.75rem; }
-
+        .outcome-section p { font-size: 1.05rem; color: #A7AFBD; line-height: 1.9; margin-bottom: 0.75rem; font-weight: 400; }
         .cta-section { padding: 7rem 2rem; text-align: center; }
         .cta-inner { max-width: 480px; margin: 0 auto; }
-        .cta-section p { font-size: 1.05rem; color: #A7AFBD; line-height: 1.9; margin-bottom: 2.5rem; }
+        .cta-section p { font-size: 1.05rem; color: #A7AFBD; line-height: 1.9; margin-bottom: 2.5rem; font-weight: 400; }
         .btn-primary { display: inline-flex; align-items: center; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--bg); background: var(--gold); padding: 1rem 3.2rem; text-decoration: none; min-height: 54px; transition: filter 0.25s; }
         .btn-primary:hover { filter: brightness(1.08); }
         .btn-primary:focus { outline: 1px solid rgba(168,134,74,0.65); outline-offset: 2px; }
         .cta-note { font-size: 0.78rem; color: var(--dim); margin-top: 1.25rem; letter-spacing: 0.04em; }
-
         footer { padding: 2.5rem 4rem; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
         .footer-brand { font-family: var(--font-display); font-size: 0.85rem; font-weight: 300; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
         .footer-copy { font-size: 0.78rem; color: var(--muted); }
-
         @media (max-width: 768px) {
-          nav { padding: 1rem 1.25rem; }
-          .nav-cta { padding: 0.6rem 1rem; letter-spacing: 0.14em; }
+          nav { padding: 1rem 1.25rem; } .nav-cta { padding: 0.6rem 1rem; }
           .tool-hero { padding: 9rem 1.5rem 5rem; }
           .tool-section, .outcome-section, .cta-section { padding: 4rem 1.5rem; }
           footer { flex-direction: column; gap: 0.75rem; text-align: center; padding: 1.5rem; }
@@ -85,13 +127,8 @@ export default function ReputationRecoveryPage() {
             <div className="tool-kicker">Brand Infrastructure</div>
             <h1>Reputation<br />Recovery</h1>
             <div className="rule" />
-            <p className="tool-tagline">
-              Trust rarely disappears instantly.<br />
-              It erodes quietly.
-            </p>
-            <p className="tool-desc">
-              Especially for businesses built on repeat customers and word-of-mouth reputation.
-            </p>
+            <p className="tool-tagline">Trust rarely disappears instantly.<br />It erodes quietly.</p>
+            <p className="tool-desc">Especially for businesses built on repeat customers and word-of-mouth reputation.</p>
           </div>
         </section>
 
@@ -99,23 +136,16 @@ export default function ReputationRecoveryPage() {
           <div className="content-wrap">
             <h2 className="section-lead">One unresolved experience can influence:</h2>
             <ul className="impact-list">
-              <li>future reservations</li>
-              <li>referral confidence</li>
-              <li>online perception</li>
-              <li>long-term brand trust</li>
+              <li>future reservations</li><li>referral confidence</li>
+              <li>online perception</li><li>long-term brand trust</li>
             </ul>
-            <p style={{ marginTop: "2rem" }}>
-              SMBkits identifies recovery opportunities before dissatisfaction compounds publicly.
-            </p>
+            <p style={{ marginTop: "2rem" }}>SMBkits identifies recovery opportunities before dissatisfaction compounds publicly.</p>
           </div>
         </section>
 
         <section className="tool-section">
           <div className="content-wrap">
-            <h2 className="section-lead">
-              Recovery is approached<br />
-              <em>carefully.</em>
-            </h2>
+            <h2 className="section-lead">Recovery is approached <em>carefully.</em></h2>
             <p>No aggressive outreach.<br />No artificial review generation.<br />No manipulative automation.</p>
             <p>Only thoughtful follow-up aligned with the original customer experience.</p>
           </div>
@@ -123,10 +153,7 @@ export default function ReputationRecoveryPage() {
 
         <section className="tool-section">
           <div className="content-wrap">
-            <h2 className="section-lead">
-              Premium brands recover through restraint,<br />
-              <em>not pressure.</em>
-            </h2>
+            <h2 className="section-lead">Premium brands recover through restraint, <em>not pressure.</em></h2>
             <p>Satisfied customers are encouraged naturally.</p>
             <p>Critical experiences are isolated early.</p>
             <p>Escalation paths remain private.</p>

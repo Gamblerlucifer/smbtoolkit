@@ -1,8 +1,117 @@
-"use client";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "SMBkits — Reputation Management Infrastructure for Premium Local Businesses",
+  description:
+    "Private reputation management infrastructure for restaurants, wine bars, salons, spas, specialty coffee, wellness studios, and premium local businesses. Protect brand reputation with brand-safe customer response systems.",
+  keywords: [
+    "reputation management",
+    "restaurant reputation management",
+    "google review management",
+    "review response management",
+    "customer feedback management",
+    "premium local business",
+    "brand reputation protection",
+    "online reputation management",
+    "restaurant review responses",
+    "small business reputation management",
+  ],
+  alternates: {
+    canonical: "https://smbkits.com",
+    languages: { "en-US": "https://smbkits.com" },
+  },
+  openGraph: {
+    title: "SMBkits — Private Reputation Infrastructure",
+    description:
+      "Brand-safe reputation management infrastructure for independent premium businesses.",
+    type: "website",
+    url: "https://smbkits.com",
+    images: [
+      {
+        url: "https://smbkits.com/og/main.jpg",
+        width: 1200,
+        height: 630,
+        alt: "SMBkits Reputation Infrastructure",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SMBkits — Reputation Infrastructure",
+    description: "Protect brand reputation with private brand-safe reputation systems.",
+    images: ["https://smbkits.com/og/main.jpg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large" },
+  },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      name: "SMBkits",
+      url: "https://smbkits.com",
+      logo: "https://smbkits.com/icon.png",
+      description:
+        "Private reputation management infrastructure for independent premium businesses.",
+      sameAs: ["https://github.com/Gamblerlucifer/smbkits"],
+    },
+    {
+      "@type": "WebSite",
+      name: "SMBkits",
+      url: "https://smbkits.com",
+      potentialAction: {
+        "@type": "SearchAction",
+        target: "https://smbkits.com/?q={search_term_string}",
+        "query-input": "required name=search_term_string",
+      },
+    },
+    {
+      "@type": "SoftwareApplication",
+      name: "SMBkits",
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web",
+      description:
+        "Brand-safe reputation management, local positioning, and social presence for premium local businesses.",
+      offers: {
+        "@type": "AggregateOffer",
+        lowPrice: "24.99",
+        highPrice: "99.99",
+        priceCurrency: "USD",
+      },
+      featureList: [
+        "Reputation Response Management",
+        "Social Presence Management",
+        "Local Positioning Intelligence",
+        "Reputation Recovery",
+        "Brand Voice Library",
+        "Visibility Intelligence",
+        "Brand Responses",
+      ],
+    },
+    {
+      "@type": "ProfessionalService",
+      name: "SMBkits",
+      url: "https://smbkits.com",
+      description:
+        "Private reputation infrastructure for independent premium businesses including restaurants, wine bars, spas, salons, and specialty coffee.",
+      serviceType: "Reputation Management",
+      areaServed: "Worldwide",
+    },
+  ],
+};
 
 export default function Home() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400&display=swap');
 
@@ -20,8 +129,8 @@ export default function Home() {
           --muted: #8B92A1;
           --dim: #5B6272;
           --border: rgba(255,255,255,0.05);
-          --font-display: 'Cormorant Garamond', Georgia, serif;
-          --font-body: 'DM Sans', sans-serif;
+          --font-display: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
+          --font-body: var(--font-dm-sans), 'DM Sans', sans-serif;
         }
 
         html { scroll-behavior: smooth; }
@@ -98,13 +207,12 @@ export default function Home() {
         .hero h1 em { font-style: italic; color: var(--gold); }
         .rule { width: 36px; height: 1px; background: var(--gold); opacity: 0.5; margin: 2.5rem auto; }
         .hero-sub {
-          font-size: 1.15rem; font-weight: 300;
+          font-size: 1.15rem; font-weight: 400;
           color: #A7AFBD; max-width: 540px;
           margin: 0 auto 3.5rem; line-height: 1.9;
         }
         .hero-sub strong { color: var(--text); font-weight: 400; }
         .btn-primary {
-          display: inline-block;
           font-size: 0.72rem; font-weight: 500;
           letter-spacing: 0.22em; text-transform: uppercase;
           color: var(--bg); background: var(--gold);
@@ -113,7 +221,7 @@ export default function Home() {
           display: inline-flex; align-items: center;
           transition: opacity 0.25s, filter 0.25s;
         }
-        .btn-primary:hover { opacity: 1; filter: brightness(1.08); }
+        .btn-primary:hover { filter: brightness(1.08); }
         .btn-ghost {
           display: inline-block;
           font-size: 0.72rem; letter-spacing: 0.15em;
@@ -160,7 +268,7 @@ export default function Home() {
           color: var(--text); margin-bottom: 1.5rem;
         }
         .statement h2 em { font-style: italic; color: var(--gold); }
-        .statement p { font-size: 1.05rem; color: var(--muted); line-height: 1.9; }
+        .statement p { font-size: 1.05rem; color: #A7AFBD; line-height: 1.9; font-weight: 400; }
 
         /* CORE */
         .core-section {
@@ -178,7 +286,7 @@ export default function Home() {
           font-weight: 300; line-height: 1.25; margin-bottom: 1.75rem;
         }
         .core-left h2 em { font-style: italic; color: var(--gold); }
-        .core-left p { font-size: 1.05rem; color: var(--muted); line-height: 1.9; margin-bottom: 2.5rem; }
+        .core-left p { font-size: 1.05rem; color: #A7AFBD; line-height: 1.9; margin-bottom: 2.5rem; font-weight: 400; }
         .core-right { padding-top: 0.5rem; }
         .core-right-label {
           font-size: 0.72rem; letter-spacing: 0.25em;
@@ -191,10 +299,7 @@ export default function Home() {
         }
         .t-row:last-child { border-bottom: none; }
         .t-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem; }
-        .t-name {
-          font-size: 1rem; font-weight: 400;
-          color: var(--text); letter-spacing: 0.02em;
-        }
+        .t-name { font-size: 1rem; font-weight: 400; color: var(--text); letter-spacing: 0.02em; }
         .t-tag {
           font-size: 0.72rem; letter-spacing: 0.15em;
           text-transform: uppercase; padding: 0.2rem 0.65rem;
@@ -203,8 +308,8 @@ export default function Home() {
         .tag-a { color: #4A7059; border-color: rgba(74,112,89,0.25); }
         .tag-r { color: var(--muted); border-color: var(--dim); }
         .tag-x { color: #6B4040; border-color: rgba(107,64,64,0.25); }
-        .t-desc { font-size: 1rem; color: var(--muted); line-height: 1.8; }
-        .t-sub { font-size: 0.9rem; color: var(--muted); margin-top: 0.25rem; }
+        .t-desc { font-size: 1rem; color: #A7AFBD; line-height: 1.8; font-weight: 400; }
+        .t-sub { font-size: 0.9rem; color: #929CAD; margin-top: 0.25rem; }
 
         /* ECO */
         .eco-section {
@@ -218,22 +323,18 @@ export default function Home() {
           font-size: clamp(1.5rem, 3vw, 2.5rem);
           font-weight: 300; margin-bottom: 0.75rem;
         }
-        .eco-header p { font-size: 1.05rem; color: var(--muted); max-width: 560px; line-height: 1.9; margin: 0 auto; }
-        .service-list {
-          border: 1px solid var(--border);
-        }
+        .eco-header p { font-size: 1.05rem; color: #A7AFBD; max-width: 560px; line-height: 1.9; margin: 0 auto; font-weight: 400; }
+        .service-list { border: 1px solid var(--border); }
         .service-item {
-          display: grid;
-          grid-template-columns: 1fr auto;
-          gap: 2.5rem;
-          padding: 2rem 2.5rem;
+          display: grid; grid-template-columns: 1fr auto;
+          gap: 2.5rem; padding: 2rem 2.5rem;
           border-bottom: 1px solid var(--border);
           text-decoration: none; color: inherit;
-          transition: background 0.2s ease;
-          align-items: start;
+          transition: background 0.2s ease; align-items: start;
         }
         .service-item:last-child { border-bottom: none; }
-        .service-item:hover { background: rgba(255,255,255,0.025); }
+        .service-item:hover { background: rgba(255,255,255,0.03); }
+        .service-item:hover .service-name { color: #F1EBDF; }
         .service-item:hover .service-arrow { color: var(--gold); }
         .service-tag-inline {
           font-size: 0.6rem; letter-spacing: 0.22em;
@@ -242,25 +343,17 @@ export default function Home() {
         }
         .service-name {
           font-size: 1.05rem; font-weight: 400;
-          color: var(--text); margin-bottom: 0.5rem;
-          letter-spacing: 0.01em;
+          color: var(--text); margin-bottom: 0.5rem; letter-spacing: 0.01em;
         }
         .service-core .service-name {
-          font-family: var(--font-display);
-          font-size: 1.25rem; font-weight: 300;
+          font-family: var(--font-display); font-size: 1.25rem; font-weight: 300;
         }
-        .service-desc {
-          font-size: 1rem; color: #A7AFBD; line-height: 1.8;
-        }
-        .service-arrow {
-          font-size: 0.7rem; color: var(--dim);
-          transition: color 0.2s; padding-top: 0.3rem;
-        }
+        .service-desc { font-size: 1rem; color: #A7AFBD; line-height: 1.8; max-width: 720px; font-weight: 400; }
+        .service-arrow { font-size: 0.7rem; color: var(--dim); transition: color 0.2s; padding-top: 0.3rem; }
 
         /* CONCIERGE / WAITLIST */
         .concierge-section {
-          padding: 8rem 2rem;
-          text-align: center;
+          padding: 8rem 2rem; text-align: center;
           border-top: 1px solid var(--border);
         }
         .concierge-inner { max-width: 500px; margin: 0 auto; }
@@ -270,28 +363,21 @@ export default function Home() {
           font-weight: 300; line-height: 1.2; margin-bottom: 1rem;
         }
         .concierge-inner h2 em { font-style: italic; color: var(--gold); }
-        .concierge-inner p {
-          font-size: 1.05rem; color: var(--muted);
-          margin-bottom: 2rem; line-height: 1.9;
-        }
+        .concierge-inner p { font-size: 1.05rem; color: #A7AFBD; margin-bottom: 2rem; line-height: 1.9; font-weight: 400; }
         .quote-block {
           border-left: 1px solid var(--gold-border);
-          padding: 1.25rem 1.5rem;
-          margin-bottom: 2.5rem;
-          text-align: left;
-          background: rgba(255,255,255,0.01);
+          padding: 1.25rem 1.5rem; margin-bottom: 2.5rem;
+          text-align: left; background: rgba(255,255,255,0.01);
         }
         .quote-text {
           font-family: var(--font-display);
           font-size: 1.05rem; font-style: italic; font-weight: 300;
-          color: var(--muted); line-height: 1.8; margin-bottom: 0.6rem;
+          color: #A7AFBD; line-height: 1.8; margin-bottom: 0.6rem;
         }
-        .quote-attr { font-size: 0.78rem; color: var(--muted); letter-spacing: 0.08em; }
-        .email-form { display: flex; border: 1px solid var(--border); }
+        .quote-attr { font-size: 0.78rem; color: #929CAD; letter-spacing: 0.08em; }
         .invite-form {
           display: flex; flex-direction: column; gap: 0;
-          border: 1px solid var(--border);
-          background: rgba(255,255,255,0.01);
+          border: 1px solid var(--border); background: rgba(255,255,255,0.01);
         }
         .invite-input {
           background: transparent; border: none; border-bottom: 1px solid var(--border);
@@ -308,22 +394,14 @@ export default function Home() {
           font-family: var(--font-body); font-size: 0.72rem; font-weight: 500;
           letter-spacing: 0.2em; text-transform: uppercase;
           padding: 1rem 1.75rem; cursor: pointer; min-height: 54px;
-          transition: opacity 0.25s, filter 0.25s; white-space: nowrap;
+          transition: filter 0.25s; white-space: nowrap; width: 100%;
         }
-        .email-submit:hover { opacity: 1; filter: brightness(1.08); }
-        .scarcity-note {
-          font-size: 0.8rem; color: var(--muted);
-          margin-top: 1.1rem; line-height: 1.65; letter-spacing: 0.03em;
-        }
-        .access-note {
-          font-size: 0.65rem; color: var(--dim);
-          margin-top: 0.5rem; letter-spacing: 0.06em;
-        }
+        .email-submit:hover { filter: brightness(1.08); }
+        .scarcity-note { font-size: 0.8rem; color: #929CAD; margin-top: 1.1rem; line-height: 1.65; letter-spacing: 0.03em; }
 
         /* FOOTER */
         footer {
-          padding: 2.5rem 4rem;
-          border-top: 1px solid var(--border);
+          padding: 2.5rem 4rem; border-top: 1px solid var(--border);
           display: flex; align-items: center; justify-content: space-between;
         }
         .footer-brand {
@@ -331,24 +409,13 @@ export default function Home() {
           font-size: 0.85rem; font-weight: 300;
           letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted);
         }
-        .footer-copy { font-size: 0.78rem; color: var(--muted); letter-spacing: 0.05em; }
+        .footer-copy { font-size: 0.78rem; color: #929CAD; letter-spacing: 0.05em; }
 
-        .statement p,
-        .core-left p,
-        .concierge-inner p,
-        .eco-header p,
-        .service-desc,
-        .t-desc { color: #A7AFBD; }
-
-        .t-sub,
-        .quote-attr,
-        .footer-copy,
-        .scarcity-note { color: #929CAD; }
-
-        .kicker,
-        .section-tag,
-        .core-right-label,
-        .eco-feat-tag { letter-spacing: 0.22em; }
+        /* FOCUS */
+        .btn-primary:focus, .btn-ghost:focus, .nav-cta:focus,
+        .email-submit:focus, .invite-input:focus, .service-item:focus {
+          outline: 1px solid rgba(168,134,74,0.65); outline-offset: 2px;
+        }
 
         @media (max-width: 900px) {
           nav { padding: 1.25rem 1.5rem; }
@@ -356,54 +423,20 @@ export default function Home() {
           .eco-section { padding: 5rem 1.5rem; }
           .service-item { gap: 1.5rem; padding: 1.5rem; }
           footer { flex-direction: column; gap: 0.75rem; text-align: center; padding: 1.5rem; }
-          .email-form { flex-direction: column; }
-          .invite-form { width: 100%; }
-          .email-submit { width: 100%; }
         }
-
-        /* FINAL PRODUCTION POLISH */
-
-        .btn-primary:focus,
-        .btn-ghost:focus,
-        .nav-cta:focus,
-        .email-submit:focus,
-        .invite-input:focus {
-          outline: 1px solid rgba(168,134,74,0.65);
-          outline-offset: 2px;
-        }
-
-        .service-item:hover { background: rgba(255,255,255,0.03); }
-        .service-item:hover .service-name { color: #F1EBDF; }
-
-        .hero-sub,
-        .statement p,
-        .core-left p,
-        .concierge-inner p,
-        .service-desc,
-        .t-desc { font-weight: 400; }
-
-        .service-desc { max-width: 720px; }
 
         @media (max-width: 768px) {
+          nav { padding: 1rem 1.25rem; }
+          .nav-cta { padding: 0.6rem 1rem; letter-spacing: 0.14em; }
           .hero { padding-top: 8rem; padding-bottom: 6rem; }
           .hero h1 { font-size: clamp(2.5rem, 12vw, 4rem); line-height: 1.06; }
-          .hero-sub br { display: none; }
           .hero-sub { max-width: 92%; font-size: 0.98rem; line-height: 1.85; }
+          .hero-sub br { display: none; }
           .service-item { grid-template-columns: 1fr; gap: 0.75rem; }
           .service-arrow { display: none; }
           .btn-primary, .btn-ghost, .email-submit { width: 100%; justify-content: center; }
           .btn-ghost { margin-left: 0; margin-top: 1rem; display: block; }
           .marquee-inner { animation-duration: 90s; }
-        }
-
-        .hero-sub { font-weight: 400; }
-
-        .btn-primary:hover,
-        .email-submit:hover { filter: brightness(1.05); }
-
-        @media (max-width: 768px) {
-          nav { padding: 1rem 1.25rem; }
-          .nav-cta { padding: 0.6rem 1rem; letter-spacing: 0.14em; }
         }
       `}</style>
 
@@ -434,7 +467,7 @@ export default function Home() {
       </section>
 
       {/* MARQUEE */}
-      <div className="marquee-wrap">
+      <div className="marquee-wrap" aria-hidden="true">
         <div className="marquee-inner">
           {Array(2).fill(null).map((_, i) => (
             <div key={i} style={{ display: "flex", gap: "5rem", flexShrink: 0 }}>
@@ -480,7 +513,7 @@ export default function Home() {
             Exceptional experiences are acknowledged immediately.
             Critical feedback is held for personal review — nothing is published without your approval.
           </p>
-          <a href="#access" className="btn-primary" style={{ display: "inline-block" }}>Request Private Access</a>
+          <a href="#access" className="btn-primary" style={{ display: "inline-flex" }}>Request Private Access</a>
         </div>
         <div className="core-right">
           <div className="core-right-label">Reputation Response Flow</div>
@@ -506,7 +539,7 @@ export default function Home() {
               <span className="t-tag tag-x">Immediate Attention</span>
             </div>
             <div className="t-desc">Immediate notification to leadership. Personal response required. Nothing is published.</div>
-            <div className="t-sub">Brand protection at the highest sensitivity</div>
+            <div className="t-sub">Brand protection at the highest sensitivity.</div>
           </div>
         </div>
       </section>
@@ -514,41 +547,41 @@ export default function Home() {
       {/* PLATFORM */}
       <section className="eco-section" id="platform">
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-        <div className="eco-header">
-          <div className="section-tag">Brand Infrastructure</div>
-          <h2>A private brand infrastructure for independent premium businesses.</h2>
-          <p>Every layer operates with shared brand standards.</p>
-        </div>
-        <div className="service-list">
-          <a href="/reputation-response" className="service-item service-core">
-            <div>
-              <span className="service-tag-inline">Core · Primary</span>
-              <div className="service-name">Reputation Response</div>
-              <div className="service-desc">
-                Brand-safe reputation management. Positive customer interactions prepared in your brand tone for review.
-                Critical feedback reserved for personal response.
-                Brand-safe response orchestration — nothing is published outside your brand standards.
-              </div>
-            </div>
-            <span className="service-arrow">→</span>
-          </a>
-          {[
-            { name: "Social Presence", href: "/social-presence", desc: "Maintain a consistent tone across every customer touchpoint — dining, bar, studio, or spa." },
-            { name: "Local Positioning", href: "/local-positioning", desc: "Understand what customers say about your closest competitors." },
-            { name: "Reputation Recovery", href: "/reputation-recovery", desc: "Encourage satisfied customers to share their experience naturally." },
-            { name: "Brand Voice Library", href: "/brand-voice", desc: "Descriptions that reflect your culinary or service vision — from wine list to treatment menu." },
-            { name: "Visibility Intelligence", href: "/visibility-intelligence", desc: "Understand why customers choose competing premium businesses nearby." },
-            { name: "Brand Responses", href: "/brand-responses", desc: "The right words for every customer interaction, every time." },
-          ].map((item) => (
-            <a key={item.name} href={item.href} className="service-item">
+          <div className="eco-header">
+            <div className="section-tag">Brand Infrastructure</div>
+            <h2>A private brand infrastructure for independent premium businesses.</h2>
+            <p>Every layer operates with shared brand standards.</p>
+          </div>
+          <div className="service-list">
+            <a href="/reputation-response" className="service-item service-core">
               <div>
-                <div className="service-name">{item.name}</div>
-                <div className="service-desc">{item.desc}</div>
+                <span className="service-tag-inline">Core · Primary</span>
+                <div className="service-name">Reputation Response</div>
+                <div className="service-desc">
+                  Brand-safe reputation management. Positive customer interactions prepared in your brand tone for review.
+                  Critical feedback reserved for personal response.
+                  Nothing is published outside your brand standards.
+                </div>
               </div>
-              <span className="service-arrow">→</span>
+              <span className="service-arrow" aria-hidden="true">→</span>
             </a>
-          ))}
-        </div>
+            {[
+              { name: "Social Presence", href: "/social-presence", desc: "Maintain a consistent tone across every customer touchpoint — dining, bar, studio, or spa." },
+              { name: "Local Positioning", href: "/local-positioning", desc: "Understand what customers say about your closest competitors." },
+              { name: "Reputation Recovery", href: "/reputation-recovery", desc: "Encourage satisfied customers to share their experience naturally." },
+              { name: "Brand Voice Library", href: "/brand-voice", desc: "Descriptions that reflect your culinary or service vision — from wine list to treatment menu." },
+              { name: "Visibility Intelligence", href: "/visibility-intelligence", desc: "Understand why customers choose competing premium businesses nearby." },
+              { name: "Brand Responses", href: "/brand-responses", desc: "The right words for every customer interaction, every time." },
+            ].map((item) => (
+              <a key={item.name} href={item.href} className="service-item">
+                <div>
+                  <div className="service-name">{item.name}</div>
+                  <div className="service-desc">{item.desc}</div>
+                </div>
+                <span className="service-arrow" aria-hidden="true">→</span>
+              </a>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -562,24 +595,19 @@ export default function Home() {
             <em>public mistakes.</em>
           </h2>
           <div className="rule" />
-          <p>
-            SMBkits operates by private referral.
-          </p>
-
+          <p>SMBkits operates by private referral.</p>
           <div className="quote-block">
             <p className="quote-text">
               &ldquo;Finally, a system that protects brand tone without sounding automated.&rdquo;
             </p>
             <p className="quote-attr">— Independent restaurant owner</p>
           </div>
-
           <div className="invite-form">
-            <input type="text" className="invite-input" placeholder="Business Name" />
-            <input type="text" className="invite-input" placeholder="Your Role" />
-            <input type="email" className="invite-input" placeholder="Business Email" />
+            <input type="text" className="invite-input" placeholder="Business Name" aria-label="Business Name" />
+            <input type="text" className="invite-input" placeholder="Your Role" aria-label="Your Role" />
+            <input type="email" className="invite-input" placeholder="Business Email" aria-label="Business Email" />
             <button type="button" className="email-submit invite-submit">Request Private Access</button>
           </div>
-
           <p className="scarcity-note">
             Access remains intentionally limited<br />
             to maintain brand alignment.

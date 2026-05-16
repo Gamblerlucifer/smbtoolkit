@@ -1,15 +1,64 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Local Positioning — SMBkits",
-  description: "Understand why customers choose nearby competitors. Behavioral signals, not vanity metrics.",
+  title: "Local Reputation & Competitor Positioning Intelligence",
+  description:
+    "Analyze local customer sentiment, competitor perception, and positioning trends for premium local businesses. Understand why customers choose nearby competitors.",
+  keywords: [
+    "competitor reputation analysis",
+    "restaurant competitor analysis",
+    "local market intelligence",
+    "customer sentiment analysis",
+    "local reputation monitoring",
+  ],
+  alternates: { canonical: "https://smbkits.com/local-positioning" },
+  openGraph: {
+    title: "Local Reputation & Competitor Positioning Intelligence",
+    description: "Analyze local customer sentiment and competitor perception for premium local businesses.",
+    url: "https://smbkits.com/local-positioning",
+    images: [{ url: "https://smbkits.com/og/local-positioning.jpg", width: 1200, height: 630, alt: "Local Positioning — SMBkits" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Local Positioning Intelligence | SMBkits",
+    description: "Understand why customers choose nearby competitors.",
+    images: ["https://smbkits.com/og/local-positioning.jpg"],
+  },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Service",
+      name: "Local Positioning Intelligence",
+      provider: { "@type": "Organization", name: "SMBkits", url: "https://smbkits.com" },
+      description: "Local customer sentiment and competitor perception analysis for independent premium businesses.",
+      url: "https://smbkits.com/local-positioning",
+      serviceType: "Market Intelligence",
+      areaServed: "Worldwide",
+    },
+    {
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "What is local positioning intelligence?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Local positioning intelligence analyzes nearby customer sentiment, competitor perception patterns, and behavioral signals to reveal why customers choose one business over another.",
+          },
+        },
+      ],
+    },
+  ],
 };
 
 export default function LocalPositioningPage() {
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400&display=swap');
         html { font-size: 16px; }
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
@@ -17,8 +66,8 @@ export default function LocalPositioningPage() {
           --bg: #08090C; --bg2: #0C0E13;
           --text: #E4DED4; --muted: #8B92A1; --dim: #5B6272;
           --border: rgba(255,255,255,0.05);
-          --font-display: 'Cormorant Garamond', Georgia, serif;
-          --font-body: 'DM Sans', sans-serif;
+          --font-display: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
+          --font-body: var(--font-dm-sans), 'DM Sans', sans-serif;
         }
         html { scroll-behavior: smooth; }
         body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-weight: 400; line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
@@ -27,47 +76,40 @@ export default function LocalPositioningPage() {
         .nav-cta { font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--border); padding: 0.65rem 1.75rem; text-decoration: none; transition: color 0.3s, border-color 0.3s; min-height: 44px; display: flex; align-items: center; }
         .nav-cta:hover { color: var(--text); border-color: var(--gold-border); }
         .nav-cta:focus { outline: 1px solid rgba(168,134,74,0.65); outline-offset: 2px; }
-
         .tool-hero { padding: 12rem 2rem 7rem; text-align: center; border-bottom: 1px solid var(--border); }
         .tool-hero-inner { max-width: 760px; margin: 0 auto; }
         .tool-kicker { font-size: 0.72rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--muted); margin-bottom: 2.5rem; }
         .tool-hero h1 { font-family: var(--font-display); font-size: clamp(2.5rem, 5.5vw, 4.5rem); font-weight: 300; line-height: 1.05; letter-spacing: -0.02em; margin-bottom: 2rem; }
         .tool-tagline { font-family: var(--font-display); font-size: clamp(1rem, 1.8vw, 1.25rem); font-style: italic; font-weight: 300; color: var(--muted); margin-bottom: 2rem; line-height: 1.5; }
-        .tool-desc { font-size: 1.05rem; color: #A7AFBD; line-height: 1.9; max-width: 600px; margin: 0 auto; }
+        .tool-desc { font-size: 1.05rem; color: #A7AFBD; line-height: 1.9; max-width: 600px; margin: 0 auto; font-weight: 400; }
         .rule { width: 36px; height: 1px; background: var(--gold); opacity: 0.5; margin: 2.5rem auto; }
-
         .content-wrap { max-width: 680px; margin: 0 auto; padding: 0 2rem; }
         .tool-section { padding: 5rem 2rem; border-bottom: 1px solid var(--border); }
         .tool-section:nth-child(even) { background: var(--bg2); }
         .section-lead { font-family: var(--font-display); font-size: clamp(1.5rem, 2.5vw, 2rem); font-weight: 300; line-height: 1.3; margin-bottom: 2rem; }
         .section-lead em { font-style: italic; color: var(--gold); }
-        .tool-section p { font-size: 1.05rem; color: #A7AFBD; line-height: 1.9; margin-bottom: 1.25rem; }
+        .tool-section p { font-size: 1.05rem; color: #A7AFBD; line-height: 1.9; margin-bottom: 1.25rem; font-weight: 400; }
         .tool-section p:last-child { margin-bottom: 0; }
         .signal-list { list-style: none; margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; }
         .signal-list li { font-size: 1rem; color: #A7AFBD; padding-left: 1.25rem; position: relative; line-height: 1.7; }
         .signal-list li::before { content: '—'; position: absolute; left: 0; color: var(--gold); opacity: 0.6; }
-
         .outcome-section { padding: 6rem 2rem; text-align: center; border-bottom: 1px solid var(--border); }
         .outcome-inner { max-width: 560px; margin: 0 auto; }
         .outcome-tag { font-size: 0.72rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--dim); margin-bottom: 2rem; }
         .outcome-section h2 { font-family: var(--font-display); font-size: clamp(1.5rem, 2.5vw, 2rem); font-weight: 300; line-height: 1.4; margin-bottom: 1.5rem; }
-        .outcome-section p { font-size: 1.05rem; color: #A7AFBD; line-height: 1.9; margin-bottom: 0.75rem; }
-
+        .outcome-section p { font-size: 1.05rem; color: #A7AFBD; line-height: 1.9; margin-bottom: 0.75rem; font-weight: 400; }
         .cta-section { padding: 7rem 2rem; text-align: center; }
         .cta-inner { max-width: 480px; margin: 0 auto; }
-        .cta-section p { font-size: 1.05rem; color: #A7AFBD; line-height: 1.9; margin-bottom: 2.5rem; }
+        .cta-section p { font-size: 1.05rem; color: #A7AFBD; line-height: 1.9; margin-bottom: 2.5rem; font-weight: 400; }
         .btn-primary { display: inline-flex; align-items: center; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--bg); background: var(--gold); padding: 1rem 3.2rem; text-decoration: none; min-height: 54px; transition: filter 0.25s; }
         .btn-primary:hover { filter: brightness(1.08); }
         .btn-primary:focus { outline: 1px solid rgba(168,134,74,0.65); outline-offset: 2px; }
         .cta-note { font-size: 0.78rem; color: var(--dim); margin-top: 1.25rem; letter-spacing: 0.04em; }
-
         footer { padding: 2.5rem 4rem; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
         .footer-brand { font-family: var(--font-display); font-size: 0.85rem; font-weight: 300; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
         .footer-copy { font-size: 0.78rem; color: var(--muted); }
-
         @media (max-width: 768px) {
-          nav { padding: 1rem 1.25rem; }
-          .nav-cta { padding: 0.6rem 1rem; letter-spacing: 0.14em; }
+          nav { padding: 1rem 1.25rem; } .nav-cta { padding: 0.6rem 1rem; }
           .tool-hero { padding: 9rem 1.5rem 5rem; }
           .tool-section, .outcome-section, .cta-section { padding: 4rem 1.5rem; }
           footer { flex-direction: column; gap: 0.75rem; text-align: center; padding: 1.5rem; }
@@ -85,39 +127,23 @@ export default function LocalPositioningPage() {
             <div className="tool-kicker">Brand Infrastructure</div>
             <h1>Local<br />Positioning</h1>
             <div className="rule" />
-            <p className="tool-tagline">
-              Understand why customers<br />
-              choose nearby competitors.
-            </p>
-            <p className="tool-desc">
-              Reputation is local before it becomes digital.
-            </p>
+            <p className="tool-tagline">Understand why customers<br />choose nearby competitors.</p>
+            <p className="tool-desc">Reputation is local before it becomes digital.</p>
           </div>
         </section>
 
         <section className="tool-section">
           <div className="content-wrap">
-            <h2 className="section-lead">
-              Most businesses<br />
-              only monitor themselves.<br />
-              <em>Premium operators monitor perception patterns around them.</em>
-            </h2>
-            <p>
-              SMBkits analyzes nearby customer sentiment, positioning language,
-              and recurring expectations influencing local demand.
-            </p>
+            <h2 className="section-lead">Most businesses only monitor themselves.<br /><em>Premium operators monitor perception patterns around them.</em></h2>
+            <p>SMBkits analyzes nearby customer sentiment, positioning language, and recurring expectations influencing local demand.</p>
           </div>
         </section>
 
         <section className="tool-section">
           <div className="content-wrap">
-            <h2 className="section-lead">
-              Not rankings.<br />
-              Not vanity metrics.<br />
-              <em>Behavioral signals.</em>
-            </h2>
-            <p>Why customers describe another restaurant as "worth returning to."</p>
-            <p>Why one salon feels "more trusted."</p>
+            <h2 className="section-lead">Not rankings. Not vanity metrics.<br /><em>Behavioral signals.</em></h2>
+            <p>Why customers describe another restaurant as &ldquo;worth returning to.&rdquo;</p>
+            <p>Why one salon feels &ldquo;more trusted.&rdquo;</p>
             <p>Why a nearby spa becomes associated with discretion or care.</p>
           </div>
         </section>
@@ -139,8 +165,7 @@ export default function LocalPositioningPage() {
           <div className="outcome-inner">
             <div className="outcome-tag">Outcome</div>
             <h2>A clearer understanding of how your business is perceived within the local premium market.</h2>
-            <p>Not louder positioning.</p>
-            <p>Sharper positioning.</p>
+            <p>Not louder positioning.</p><p>Sharper positioning.</p>
           </div>
         </section>
 
