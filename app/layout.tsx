@@ -69,6 +69,9 @@ export const metadata: Metadata = {
     other: { rel: "icon", url: "/icon.png" },
   },
   manifest: "/site.webmanifest",
+  verification: {
+    google: "X0-9_MUtluRCoAZkR6W_JDm1MAF002oQw4i5zv3r3wo",
+  },
   other: {
     "color-scheme": "dark",
   },
