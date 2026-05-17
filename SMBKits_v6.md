@@ -549,6 +549,29 @@ app.smbkits.com       → 7개 도구 대시보드 (공유 백엔드)
 
 ---
 
+## 참고: 글로벌 스케일업 엔지니어링 이슈
+
+### 1. GitHub Actions IP 차단 → Residential Proxy
+- GitHub Actions = Azure 데이터센터 IP → 구글·빅테크 플랫폼이 봇으로 판단해 차단
+- **지금**: 미슐랭 scraping 완료라 당장 불필요
+- **다음 스크래퍼 때**: Residential Proxy API 주입 검토 (Bright Data, Oxylabs 등)
+
+### 2. Supabase 동시 접속 한계 → Connection Pooler
+- GitHub Actions 매트릭스 병렬 실행 시 DB 최대 커넥션 초과 에러 가능
+- **지금**: Google Sheets 사용 중이라 해당 없음
+- **Supabase 전환 시**: 일반 포트(5432) 대신 Connection Pooler 포트(6543) 사용
+
+### 3. Hunter.io / NeverBounce 크레딧 낭비 방지 ← Phase 2 전 반영
+- 리드 수천 개 생기면 API 크레딧 순식간에 소진
+- **해결책**: 2단계 정제 루틴
+  ```
+  1단계: 크롤링 결과 전부 DB에 RAW 저장
+  2단계: "미답변 리뷰 5개 이상" 필터링 후 → Hunter.io API 호출
+  ```
+- → API 비용 최소화 + 크리티컬 리드만 정제
+
+---
+
 ## 참고: 이메일 시퀀스
 
 ### Day 0 — 레스토랑 타겟
