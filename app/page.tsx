@@ -6,15 +6,18 @@ export const metadata: Metadata = {
     "Private reputation management infrastructure for restaurants, wine bars, salons, spas, specialty coffee, wellness studios, and premium local businesses. Protect brand reputation with brand-safe customer response systems.",
   keywords: [
     "reputation management",
-    "restaurant reputation management",
+    "online reputation management",
     "google review management",
     "review response management",
     "customer feedback management",
+    "small business reputation management",
+    "restaurant reputation management",
+    "local business reputation",
+    "business reputation protection",
+    "customer review management",
+    "online review response",
     "premium local business",
     "brand reputation protection",
-    "online reputation management",
-    "restaurant review responses",
-    "small business reputation management",
   ],
   alternates: {
     canonical: "https://smbkits.com",
@@ -58,7 +61,6 @@ const jsonLd = {
       logo: "https://smbkits.com/icon.png",
       description:
         "Private reputation management infrastructure for independent premium businesses.",
-      sameAs: ["https://github.com/Gamblerlucifer/smbkits"],
     },
     {
       "@type": "WebSite",
@@ -71,26 +73,32 @@ const jsonLd = {
       },
     },
     {
-      "@type": "SoftwareApplication",
-      name: "SMBkits",
-      applicationCategory: "BusinessApplication",
-      operatingSystem: "Web",
-      description:
-        "Brand-safe reputation management, local positioning, and social presence for premium local businesses.",
-      offers: {
-        "@type": "AggregateOffer",
-        lowPrice: "24.99",
-        highPrice: "99.99",
-        priceCurrency: "USD",
-      },
-      featureList: [
-        "Reputation Response Management",
-        "Social Presence Management",
-        "Local Positioning Intelligence",
-        "Reputation Recovery",
-        "Brand Voice Library",
-        "Visibility Intelligence",
-        "Brand Responses",
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "What is reputation management for local businesses?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Reputation management for local businesses involves monitoring, responding to, and proactively shaping how a business is perceived online — including review responses, social presence, and customer communication — to protect long-term brand trust.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Why do premium businesses need reputation infrastructure?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Premium businesses depend on perception more than volume. A single mishandled response, inconsistent tone, or unresolved customer experience can erode trust that took years to build. Reputation infrastructure ensures every public interaction reflects brand standards, not operational pressure.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "How can restaurants protect online reputation?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Restaurants protect online reputation through consistent review responses, proactive monitoring of customer sentiment, controlled social presence, and private escalation paths for critical experiences — all aligned with the restaurant's established brand voice.",
+          },
+        },
       ],
     },
     {
@@ -113,8 +121,6 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400&display=swap');
-
         html { font-size: 16px; }
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 

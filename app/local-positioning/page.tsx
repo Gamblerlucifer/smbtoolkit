@@ -10,6 +10,7 @@ export const metadata: Metadata = {
     "local market intelligence",
     "customer sentiment analysis",
     "local reputation monitoring",
+    "local SEO reputation",
   ],
   alternates: { canonical: "https://smbkits.com/local-positioning" },
   openGraph: {
@@ -47,6 +48,22 @@ const jsonLd = {
           acceptedAnswer: {
             "@type": "Answer",
             text: "Local positioning intelligence analyzes nearby customer sentiment, competitor perception patterns, and behavioral signals to reveal why customers choose one business over another.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "How can businesses monitor local reputation?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Businesses can monitor local reputation by tracking customer sentiment patterns in reviews, analyzing recurring language customers use to describe nearby competitors, and identifying shifts in expectations before they affect demand.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "What affects local business perception?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Local business perception is shaped by recurring customer language in reviews, comparison patterns with nearby competitors, emotional associations built over repeated experiences, and the consistency of public-facing communication across all channels.",
           },
         },
       ],

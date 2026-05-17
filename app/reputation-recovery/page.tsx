@@ -6,8 +6,11 @@ export const metadata: Metadata = {
     "Recover customer trust and improve online reputation through private, brand-safe customer recovery systems. Identify recovery opportunities before dissatisfaction compounds publicly.",
   keywords: [
     "reputation recovery",
+    "reputation repair",
+    "business reputation recovery",
     "online reputation repair",
     "negative review recovery",
+    "recover bad reviews",
     "customer trust recovery",
     "business reputation repair",
   ],
@@ -43,10 +46,26 @@ const jsonLd = {
       mainEntity: [
         {
           "@type": "Question",
-          name: "How does reputation recovery work for premium businesses?",
+          name: "How do businesses recover from negative reviews?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "Premium businesses recover through restraint, not pressure. SMBkits identifies recovery opportunities, encourages satisfied customers naturally, and isolates critical experiences early — all through private, brand-aligned follow-up.",
+            text: "Businesses recover from negative reviews by addressing the root experience privately, encouraging satisfied customers naturally, and ensuring future interactions reflect improvement. Aggressive outreach or artificial review generation compounds reputational risk rather than reducing it.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Can online reputation be repaired?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Yes — online reputation can be repaired through consistent, measured action over time. Recovery is not a single response but a pattern of thoughtful follow-up, satisfied customer advocacy, and operational improvement that becomes visible in public sentiment.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "How should brands recover customer trust?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Brands recover customer trust through restraint rather than pressure. This means identifying dissatisfied experiences early, resolving them privately, and allowing trust to rebuild through consistent delivery — not through incentivized reviews or forced outreach.",
           },
         },
       ],

@@ -6,6 +6,8 @@ export const metadata: Metadata = {
     "Professional customer response systems for restaurants, salons, spas, wellness brands, and premium local businesses. Every public reply managed with brand sensitivity and judgment.",
   keywords: [
     "customer response management",
+    "professional review replies",
+    "review response software",
     "review response system",
     "professional customer communication",
     "google review replies",
@@ -39,11 +41,33 @@ const jsonLd = {
       areaServed: "Worldwide",
     },
     {
-      "@type": "SoftwareApplication",
-      name: "SMBkits Brand Responses",
-      applicationCategory: "BusinessApplication",
-      operatingSystem: "Web",
-      offers: { "@type": "Offer", price: "12.00", priceCurrency: "USD" },
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "How should businesses respond to customer reviews?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Businesses should respond to customer reviews with deliberate tone and consistent brand voice — not speed or automation. Every public response becomes a permanent part of how the brand is perceived, and should reflect the level of care the business delivers in person.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Why do review replies matter?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Review replies matter because they are read by potential customers, not just the reviewer. A well-crafted response signals operational maturity and brand confidence. A poorly written or automated reply signals the opposite — regardless of the quality of the underlying product or service.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "What makes a professional customer response?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "A professional customer response is calm, specific, brand-aligned, and never defensive. It acknowledges the customer's experience, reflects the business's values, and avoids generic language that signals the response was templated or rushed.",
+          },
+        },
+      ],
     },
   ],
 };

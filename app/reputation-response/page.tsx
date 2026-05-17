@@ -6,12 +6,15 @@ export const metadata: Metadata = {
     "Professional reputation response management for restaurants, spas, salons, wine bars, and premium local businesses. Protect your brand with controlled customer response workflows.",
   keywords: [
     "review response management",
+    "google review replies",
     "google review responses",
-    "customer review management",
-    "restaurant review management",
-    "online reputation response",
     "negative review management",
+    "restaurant review response",
+    "restaurant review management",
+    "review reply management",
     "review reply software",
+    "customer review management",
+    "online reputation response",
     "brand-safe review response",
   ],
   alternates: {
@@ -44,29 +47,30 @@ const jsonLd = {
       areaServed: "Worldwide",
     },
     {
-      "@type": "SoftwareApplication",
-      name: "SMBkits Reputation Response",
-      applicationCategory: "BusinessApplication",
-      operatingSystem: "Web",
-      offers: { "@type": "Offer", price: "24.99", priceCurrency: "USD" },
-    },
-    {
       "@type": "FAQPage",
       mainEntity: [
         {
           "@type": "Question",
-          name: "How does SMBkits handle negative reviews?",
+          name: "How should restaurants respond to negative reviews?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "Negative reviews trigger immediate private alerts to leadership. No automated response is published. The system provides a draft for reference, but the owner responds personally.",
+            text: "Restaurants should respond to negative reviews with composure, not speed. A measured, brand-aligned response that acknowledges the experience without becoming defensive protects long-term perception far better than a quick generic reply.",
           },
         },
         {
           "@type": "Question",
-          name: "What happens to positive reviews?",
+          name: "What is brand-safe review management?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "Positive reviews receive a brand-standard response prepared and published automatically, maintaining consistency without requiring owner time.",
+            text: "Brand-safe review management ensures every public response — positive or negative — is reviewed against the business's established tone and voice before publication. No automated responses are published outside a controlled approval process.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Should businesses automate review replies?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "For premium businesses, fully automated review replies carry significant reputational risk. Automated responses often sound generic or miss emotional context. A controlled workflow — where positive reviews receive consistent brand-standard responses and sensitive reviews are escalated privately — is far safer.",
           },
         },
       ],

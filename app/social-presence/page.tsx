@@ -6,6 +6,7 @@ export const metadata: Metadata = {
     "Maintain a consistent customer-facing brand presence across social platforms, reviews, and public interactions for restaurants, spas, salons, and premium local businesses.",
   keywords: [
     "social presence management",
+    "social media management for restaurants",
     "brand consistency",
     "restaurant branding",
     "social media brand management",
@@ -40,10 +41,33 @@ const jsonLd = {
       areaServed: "Worldwide",
     },
     {
-      "@type": "ProfessionalService",
-      name: "SMBkits Social Presence",
-      url: "https://smbkits.com/social-presence",
-      description: "Social media brand management and tone discipline for premium local businesses.",
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "Why does brand consistency matter?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Brand consistency shapes customer trust before a single visit. When a business's tone, language, and visual presence feel aligned across every channel, customers perceive higher quality and reliability — even before any direct interaction.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "How should premium brands communicate online?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Premium brands should communicate with tonal restraint, controlled warmth, and consistent voice across all public channels. Reactive, casual, or inconsistent communication undermines perceived quality regardless of the product or service delivered.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "What damages customer trust online?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Inconsistent tone across platforms, defensive or reactive responses to feedback, and communication that feels operational rather than human are the most common causes of eroded customer trust for premium local businesses.",
+          },
+        },
+      ],
     },
   ],
 };

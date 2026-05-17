@@ -8,6 +8,8 @@ export const metadata: Metadata = {
     "visibility intelligence",
     "local business intelligence",
     "customer behavior analysis",
+    "visibility monitoring",
+    "market perception analysis",
     "restaurant visibility monitoring",
     "brand visibility analysis",
   ],
@@ -43,10 +45,26 @@ const jsonLd = {
       mainEntity: [
         {
           "@type": "Question",
-          name: "What signals does visibility intelligence monitor?",
+          name: "What is visibility intelligence?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "Visibility intelligence monitors nearby brand movement, customer expectation shifts, local sentiment changes, reputation momentum, and recurring praise patterns that reveal positioning gaps before revenue reflects them.",
+            text: "Visibility intelligence is the systematic monitoring of local customer perception signals — including nearby competitor sentiment, expectation shifts, and emotional language trends — to give premium businesses sharper strategic awareness of how they are positioned in their local market.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "How do businesses track customer perception?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Businesses track customer perception by analyzing recurring language patterns in reviews, monitoring how customers describe competitors versus themselves, and identifying shifts in emotional associations and service expectations before they affect booking and revenue behavior.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Why does local visibility matter?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Local visibility shapes demand before any marketing effort. Customers form preferences based on perceived positioning within their local area. Understanding how that positioning is shaped — and by what signals — allows premium businesses to make strategic adjustments before revenue reflects the gap.",
           },
         },
       ],

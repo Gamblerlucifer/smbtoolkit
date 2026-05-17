@@ -7,7 +7,9 @@ export const metadata: Metadata = {
   keywords: [
     "brand voice management",
     "restaurant brand voice",
+    "restaurant brand communication",
     "customer communication templates",
+    "consistent brand messaging",
     "brand consistency system",
     "service communication management",
   ],
@@ -39,10 +41,33 @@ const jsonLd = {
       areaServed: "Worldwide",
     },
     {
-      "@type": "CreativeWork",
-      name: "Brand Voice System",
-      creator: { "@type": "Organization", name: "SMBkits" },
-      description: "Tonal discipline and brand voice library for premium local businesses.",
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "Why is brand voice consistency important?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Brand voice consistency ensures that customers experience the same quality of communication regardless of who is writing — whether it's a menu description, a review reply, or a reservation message. Inconsistency signals operational instability, which erodes trust in premium positioning.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "How should restaurants maintain brand tone?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Restaurants maintain brand tone through a centralized voice structure that defines approved language patterns, emotional registers, and communication boundaries for every customer-facing touchpoint — from reservation confirmations to public review responses.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "What creates inconsistent customer communication?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Inconsistent customer communication typically results from the absence of a documented brand voice standard, multiple team members writing in their own style, and no review process for public-facing content. The result is a fractured perception of quality that undermines premium positioning.",
+          },
+        },
+      ],
     },
   ],
 };
