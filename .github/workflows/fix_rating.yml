@@ -2,6 +2,11 @@ name: SMBkits Fix Rating
 
 on:
   workflow_dispatch:
+    inputs:
+      limit:
+        description: '처리할 최대 행 수 (0=무제한, 기본: 0)'
+        required: false
+        default: '0'
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -37,6 +42,6 @@ jobs:
           EOF
 
       - name: Run fix_rating
-        run: python -u scrapers/fix_rating.py
+        run: python -u scrapers/fix_rating.py --limit ${{ github.event.inputs.limit || '0' }}
         env:
           PYTHONUNBUFFERED: "1"

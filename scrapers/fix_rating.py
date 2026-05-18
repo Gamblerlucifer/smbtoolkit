@@ -123,6 +123,11 @@ def analyze_sentiment(negative_review, rating):
     return max(0, base - count * 5)
 
 def main():
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--limit", type=int, default=0, help="처리할 최대 행 수 (0=무제한)")
+    args = parser.parse_args()
+
     sheet = get_sheet()
     all_rows = sheet.get_all_values()
     rows = all_rows[1:]
@@ -130,6 +135,10 @@ def main():
     # rating 없는 행만 필터
     targets = [(i, r) for i, r in enumerate(rows)
                if not (len(r) > 9 and r[COL["google_rating"]])]
+
+    if args.limit > 0:
+        targets = targets[:args.limit]
+        print(f"[--limit {args.limit}] 최대 {args.limit}개만 처리")
 
     print(f"Rating 없는 행: {len(targets)}개 / 전체 {len(rows)}개")
     print(f"예상 소요: 약 {len(targets) * 0.6 / 60:.0f}분\n")
