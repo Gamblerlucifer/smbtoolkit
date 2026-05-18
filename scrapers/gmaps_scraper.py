@@ -18,6 +18,14 @@ from dotenv import load_dotenv
 import argparse
 import sys
 
+# Tor IP 로테이션 (stem 없으면 로컬 실행 시 스킵)
+try:
+    from stem import Signal
+    from stem.control import Controller
+    TOR_AVAILABLE = True
+except ImportError:
+    TOR_AVAILABLE = False
+
 load_dotenv("scrapers/.env")
 
 SHEET_ID   = os.getenv("SHEET_ID")
@@ -59,8 +67,23 @@ USER_AGENTS = [
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
 ]
 
+TOR_PROXY = "socks5://127.0.0.1:9050"
+TOR_ROTATE_EVERY = 10   # N건마다 Tor 회로 교체
+
 def is_social(url):
     return any(s in url for s in SOCIAL_EXCLUDE) if url else False
+
+def rotate_tor_ip():
+    """Tor 새 회로 요청 (NEWNYM 신호)"""
+    if not TOR_AVAILABLE:
+        return
+    try:
+        with Controller.from_port(port=9051) as ctrl:
+            ctrl.authenticate()
+            ctrl.signal(Signal.NEWNYM)
+        print("  [Tor] 새 IP 회로 요청 완료")
+    except Exception as e:
+        print(f"  [Tor] 회로 교체 실패: {e}")
 
 def get_sheet():
     creds = Credentials.from_service_account_file(CREDS_FILE, scopes=SCOPES)
@@ -210,7 +233,12 @@ async def main():
         return
 
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
+        # Tor 사용 가능하면 프록시 경유
+        launch_opts = {"headless": True}
+        if TOR_AVAILABLE:
+            launch_opts["proxy"] = {"server": TOR_PROXY}
+            print(f"  [Tor] 프록시 활성화: {TOR_PROXY}")
+        browser = await p.chromium.launch(**launch_opts)
 
         for idx, (i, row) in enumerate(my_rows):
             name    = row[COL["business_name"]] if len(row) > 0 else ""
@@ -221,6 +249,11 @@ async def main():
                 continue
 
             print(f"  [{idx+1}/{len(my_rows)}] {name} - {city}, {country}")
+
+            # N건마다 Tor 회로 교체
+            if idx > 0 and idx % TOR_ROTATE_EVERY == 0:
+                rotate_tor_ip()
+                await asyncio.sleep(3)  # 새 회로 안정화 대기
 
             # 매 요청마다 새 컨텍스트 (핑거프린트 교체)
             context, page = await make_stealth_context(browser)
