@@ -266,9 +266,10 @@ def main():
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--week",    type=int,  default=1,     help="워밍업 주차 (1~6)")
-    parser.add_argument("--dry-run",    action="store_true", help="실제 발송 없이 출력만")
-    parser.add_argument("--test-email", type=str, default="", help="테스트 발송 주소 (Sheets 무시)")
+    parser.add_argument("--week",       type=int,  default=1,  help="워밍업 주차 (1~6)")
+    parser.add_argument("--dry-run",    action="store_true",   help="실제 발송 없이 출력만")
+    parser.add_argument("--test-email", type=str, default="",  help="테스트 발송 주소 (Sheets 무시)")
+    parser.add_argument("--countries",  type=str, default="",  help="발송 대상 국가 쉼표 구분 (예: Japan,Korea). 미입력시 전체")
     args = parser.parse_args()
 
     # ── 테스트 발송 모드 (3개 계정 전부 발송) ───────────────────
@@ -301,6 +302,11 @@ def main():
     lo, hi = WARMUP[week]
     today  = date.today().strftime("%Y-%m-%d")
 
+    # 국가 필터
+    target_countries = [c.strip() for c in args.countries.split(",") if c.strip()] if args.countries else []
+    if target_countries:
+        print(f"[국가 필터] {', '.join(target_countries)}\n")
+
     # 계정별 오늘 목표 건수 (랜덤)
     per_account = {acc["email"]: random.randint(lo, hi) for acc in SMTP_ACCOUNTS}
     total_target = sum(per_account.values())
@@ -316,9 +322,12 @@ def main():
     d0_leads, d3_leads, d10_leads = [], [], []
 
     for i, row in enumerate(rows):
-        email  = row[COL["email"]]          if len(row) > 6  else ""
-        status = row[COL["outreach_status"]] if len(row) > 14 else ""
+        email   = row[COL["email"]]           if len(row) > 6  else ""
+        status  = row[COL["outreach_status"]]  if len(row) > 14 else ""
+        country = row[COL["country"]]          if len(row) > 3  else ""
         if not email:
+            continue
+        if target_countries and country not in target_countries:
             continue
 
         if not status:

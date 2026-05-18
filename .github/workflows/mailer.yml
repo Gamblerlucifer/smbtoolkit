@@ -1,0 +1,106 @@
+name: SMBkits Cold Mailer
+
+on:
+  # 현지시간 11:00 도착 기준 (2026-05 DST 반영)
+  schedule:
+    - cron: '0 2  * * *'   # 02:00 UTC → Japan, Korea     (UTC+9)
+    - cron: '0 3  * * *'   # 03:00 UTC → Taiwan            (UTC+8)
+    - cron: '0 9  * * *'   # 09:00 UTC → France/Italy/Spain/Germany (UTC+2 CEST)
+    - cron: '0 10 * * *'   # 10:00 UTC → United Kingdom    (UTC+1 BST)
+    - cron: '0 15 * * *'   # 15:00 UTC → US East           (UTC-4 EDT)
+    - cron: '0 18 * * *'   # 18:00 UTC → US West           (UTC-7 PDT)
+  workflow_dispatch:
+    inputs:
+      week:
+        description: '워밍업 주차 (1~6)'
+        required: false
+        default: '1'
+      countries:
+        description: '발송 국가 쉼표 구분 (비워두면 전체)'
+        required: false
+        default: ''
+      dry_run:
+        description: 'Dry-run 모드 (true/false)'
+        required: false
+        default: 'false'
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r scrapers/requirements.txt
+
+      - name: Write Google credentials
+        run: echo '${{ secrets.GOOGLE_CREDENTIALS_JSON }}' > scrapers/credentials.json
+
+      - name: Write .env
+        run: |
+          cat > scrapers/.env << 'EOF'
+          GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+          SHEET_ID=${{ secrets.SHEET_ID }}
+          SHEET_NAME=${{ secrets.SHEET_NAME }}
+          CREDS_FILE=scrapers/credentials.json
+          SMTP_JAMES_PW=${{ secrets.SMTP_JAMES_PW }}
+          SMTP_ALEX_PW=${{ secrets.SMTP_ALEX_PW }}
+          SMTP_SARAH_PW=${{ secrets.SMTP_SARAH_PW }}
+          EOF
+
+      # schedule 트리거: UTC 시각으로 대상 국가 자동 결정
+      - name: Determine target countries (schedule mode)
+        if: github.event_name == 'schedule'
+        run: |
+          HOUR=$(date -u +%H | sed 's/^0//')
+          case $HOUR in
+            2)  echo "COUNTRIES=Japan,Korea"                          >> $GITHUB_ENV ;;
+            3)  echo "COUNTRIES=Taiwan"                               >> $GITHUB_ENV ;;
+            9)  echo "COUNTRIES=France,Italy,Spain,Germany"           >> $GITHUB_ENV ;;
+            10) echo "COUNTRIES=United Kingdom"                       >> $GITHUB_ENV ;;
+            15) echo "COUNTRIES=United States"                        >> $GITHUB_ENV ;;
+            18) echo "COUNTRIES=United States"                        >> $GITHUB_ENV ;;
+            *)  echo "COUNTRIES="                                     >> $GITHUB_ENV ;;
+          esac
+          echo "[Schedule] UTC hour=${HOUR} → COUNTRIES=${COUNTRIES}"
+
+      # workflow_dispatch: 수동 입력값 사용
+      - name: Set countries (dispatch mode)
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "COUNTRIES=${{ github.event.inputs.countries }}" >> $GITHUB_ENV
+
+      - name: Set week (schedule default)
+        if: github.event_name == 'schedule'
+        run: echo "WEEK=${{ secrets.MAILER_WEEK || '1' }}" >> $GITHUB_ENV
+
+      - name: Set week (dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "WEEK=${{ github.event.inputs.week || '1' }}" >> $GITHUB_ENV
+
+      - name: Run mailer
+        run: |
+          COUNTRIES_ARG=""
+          if [ -n "$COUNTRIES" ]; then
+            COUNTRIES_ARG="--countries \"$COUNTRIES\""
+          fi
+
+          DRY_RUN_ARG=""
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            DRY_RUN_ARG="--dry-run"
+          fi
+
+          eval python -u scrapers/mailer.py \
+            --week "$WEEK" \
+            $COUNTRIES_ARG \
+            $DRY_RUN_ARG
+        env:
+          PYTHONUNBUFFERED: "1"
