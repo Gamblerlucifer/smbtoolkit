@@ -14,7 +14,7 @@ on:
         required: false
         default: '1000'
       category:
-        description: '업종 (restaurant / hotel / spa / 등)'
+        description: '업종 (기본값: restaurant)'
         required: false
         default: 'restaurant'
       min_confidence:

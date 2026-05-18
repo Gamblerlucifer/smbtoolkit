@@ -5,7 +5,7 @@ rating + website + email + confidence 추출 | GitHub Actions OK (CAPTCHA 없음
 
 Usage:
     python scrapers/gemini_scraper.py --limit 200
-    python scrapers/gemini_scraper.py --limit 200 --category "hotel"
+    python scrapers/gemini_scraper.py --limit 200 --category "cafe"
     python scrapers/gemini_scraper.py --chunk 0 --total-chunks 4 --limit 200
 """
 
@@ -183,7 +183,7 @@ def main():
     parser.add_argument("--chunk",        type=int,   default=0,            help="청크 인덱스")
     parser.add_argument("--total-chunks", type=int,   default=1,            help="전체 청크 수")
     parser.add_argument("--limit",        type=int,   default=200,          help="처리할 최대 행 수")
-    parser.add_argument("--category",     type=str,   default="restaurant", help="업종 (restaurant / hotel / spa / ...)")
+    parser.add_argument("--category",     type=str,   default="restaurant", help="업종 카테고리")
     parser.add_argument("--min-confidence", type=int, default=0,            help="confidence 미만이면 website/email 저장 안 함")
     args = parser.parse_args()
 
