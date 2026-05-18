@@ -267,18 +267,28 @@ Cold Outreach (Instantly.ai)
 
 ## Phase 2 — 콜드 이메일 파이프라인
 
-### Instantly.ai 글로벌 라우터 스크립트
-Supabase 리드의 `country` / `city` 코드 판별 → 국가별 로컬라이징 시퀀스로 자동 분기 적재
-- 예: JP 리드 → 일본어 시퀀스 캠페인 / US 리드 → 영어 시퀀스 캠페인
-- Phase 2 콜드 이메일 파이프라인 구축 시 설계
+### 발송 구조
+
+```
+Google Sheets (리드)
+    ↓
+Gemini/Claude API → 개인화 이메일 생성 (랜덤 제목·내용, 핵심 유지)
+    ↓
+Gmail SMTP (App Password) → 3개 계정 순환 발송
+    ↓
+Sheets outreach_status 업데이트
+```
+
+**단계별 인프라:**
+| 단계 | 발송 계정 | 조건 |
+|------|----------|------|
+| 지금 (무수익) | Gmail 개인계정 3개 + App Password | 무료 |
+| 수익 발생 후 | Google Workspace (mailer@smbkits.com) | 월 $6~ |
 
 ### 발송 준비
-- [ ] Gmail 발송 전용 계정 3개 생성
-- [ ] Mailgun 가입 (무료 5,000건/월)
-- [ ] Brevo 가입 (무료 300건/일)
-- [ ] SPF / DKIM / DMARC 설정
-- [ ] Gemini API 키 확보
-- [ ] Instantly.ai 가입 + 워밍업 시작
+- [ ] Gmail 발송 전용 계정 3개 생성 (smbkits_mailer / smbkits_mail / smbkits_mailing)
+- [ ] 각 계정 2단계 인증 → 앱 비밀번호 발급
+- [ ] 국가별 언어 분기: JP 리드 → 일본어 / US·EU 리드 → 영어
 
 **워밍업 스케줄:**
 ```
