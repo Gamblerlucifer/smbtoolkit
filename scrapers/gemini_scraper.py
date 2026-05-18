@@ -50,7 +50,7 @@ COL = {
     "outreach_status":14,
 }
 
-BATCH_SIZE = 20
+BATCH_SIZE = 100
 
 # 공식 웹사이트가 아닌 도메인 (hallucination 필터)
 SOCIAL_EXCLUDE = [
@@ -243,7 +243,10 @@ def main():
                     print(f"  [Gemini 실패, 기존 website 활용] email: {email}")
                     full_row[COL["email"]] = email
                     pending.append({"row_num": i + 2, "full_row": full_row})
-            time.sleep(2)
+            if len(pending) >= BATCH_SIZE:
+                batch_write(sheet, pending)
+                pending.clear()
+            time.sleep(1)
             continue
 
         rating       = result["rating"]
@@ -264,7 +267,11 @@ def main():
             email = extract_email(website)
 
         # sentiment_score: rating × 20 (100점 만점), 없으면 50
-        sentiment = min(100, int(float(rating) * 20)) if rating else 50
+        # try/except: Gemini가 "N/A" 등 이상한 문자열 반환 시 float() 크래시 방어
+        try:
+            sentiment = min(100, int(float(rating) * 20)) if (rating and rating.strip()) else 50
+        except ValueError:
+            sentiment = 50
 
         print(f"  rating: {rating or '-'} ({review_count}개) | conf: {confidence} | "
               f"website: {website or '없음'} | email: {email or '없음'}")
@@ -281,8 +288,8 @@ def main():
             batch_write(sheet, pending)
             pending.clear()
 
-        # Tier 1 유료 ~1,000 RPM → 0.5초 간격으로 충분
-        time.sleep(random.uniform(0.5, 1.0))
+        # Tier 1 유료 ~1,000 RPM | 503 backoff 후 중복 sleep 없도록 짧게 유지
+        time.sleep(random.uniform(0.5, 0.8))
 
     batch_write(sheet, pending)
     print(f"\n완료")
