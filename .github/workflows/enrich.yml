@@ -11,6 +11,9 @@ on:
     # 매일 오전 2시 (UTC) 자동 실행 — 미처리 행이 남아있으면 계속 처리
     - cron: '0 2 * * *'
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   enrich:
     runs-on: ubuntu-latest
