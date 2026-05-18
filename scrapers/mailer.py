@@ -4,8 +4,8 @@ Gemini API 개인화 생성 → Gmail SMTP 3계정 순환 발송
 랜덤 워밍업 발송량 + 랜덤 제목/내용 + 랜덤 딜레이
 
 Usage:
-    python scrapers/mailer.py --week 1
-    python scrapers/mailer.py --week 2 --dry-run   # 실제 발송 없이 테스트
+    python scrapers/mailer.py                      # 캠페인 시작일 기준 자동 주차
+    python scrapers/mailer.py --week 2 --dry-run   # 수동 주차 지정 + 테스트
 """
 
 import os
@@ -83,6 +83,14 @@ SCOPES = [
 ]
 
 gemini_client = genai.Client(api_key=GEMINI_API_KEY)
+
+# 캠페인 시작일 — 수정하지 말 것 (주차 자동 계산 기준)
+CAMPAIGN_START = date(2026, 5, 19)
+
+def current_week() -> int:
+    """캠페인 시작일로부터 오늘이 몇 주차인지 자동 계산 (1~6 범위 클램프)"""
+    days = (date.today() - CAMPAIGN_START).days
+    return max(1, min(6, days // 7 + 1))
 
 
 def get_sheet():
@@ -266,7 +274,7 @@ def main():
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--week",       type=int,  default=1,  help="워밍업 주차 (1~6)")
+    parser.add_argument("--week",       type=int,  default=0,  help="워밍업 주차 (1~6). 미입력시 캠페인 시작일 기준 자동 계산")
     parser.add_argument("--dry-run",    action="store_true",   help="실제 발송 없이 출력만")
     parser.add_argument("--test-email", type=str, default="",  help="테스트 발송 주소 (Sheets 무시)")
     parser.add_argument("--countries",  type=str, default="",  help="발송 대상 국가 쉼표 구분 (예: Japan,Korea). 미입력시 전체")
@@ -298,7 +306,7 @@ def main():
         return
     # ─────────────────────────────────────────────────────────
 
-    week   = max(1, min(6, args.week))
+    week   = args.week if args.week > 0 else current_week()
     lo, hi = WARMUP[week]
     today  = date.today().strftime("%Y-%m-%d")
 

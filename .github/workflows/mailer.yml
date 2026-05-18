@@ -12,9 +12,9 @@ on:
   workflow_dispatch:
     inputs:
       week:
-        description: '워밍업 주차 (1~6)'
+        description: '워밍업 주차 강제 지정 (1~6). 비워두면 캠페인 시작일 자동 계산'
         required: false
-        default: '1'
+        default: ''
       countries:
         description: '발송 국가 쉼표 구분 (비워두면 전체)'
         required: false
@@ -78,29 +78,25 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         run: echo "COUNTRIES=${{ github.event.inputs.countries }}" >> $GITHUB_ENV
 
-      - name: Set week (schedule default)
-        if: github.event_name == 'schedule'
-        run: echo "WEEK=${{ secrets.MAILER_WEEK || '1' }}" >> $GITHUB_ENV
-
-      - name: Set week (dispatch)
-        if: github.event_name == 'workflow_dispatch'
-        run: echo "WEEK=${{ github.event.inputs.week || '1' }}" >> $GITHUB_ENV
-
       - name: Run mailer
         run: |
-          COUNTRIES_ARG=""
+          ARGS=""
+
+          # week: dispatch에서 명시한 경우만 전달 (없으면 자동 계산)
+          if [ -n "${{ github.event.inputs.week }}" ]; then
+            ARGS="$ARGS --week ${{ github.event.inputs.week }}"
+          fi
+
+          # countries
           if [ -n "$COUNTRIES" ]; then
-            COUNTRIES_ARG="--countries \"$COUNTRIES\""
+            ARGS="$ARGS --countries \"$COUNTRIES\""
           fi
 
-          DRY_RUN_ARG=""
+          # dry-run
           if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
-            DRY_RUN_ARG="--dry-run"
+            ARGS="$ARGS --dry-run"
           fi
 
-          eval python -u scrapers/mailer.py \
-            --week "$WEEK" \
-            $COUNTRIES_ARG \
-            $DRY_RUN_ARG
+          eval python -u scrapers/mailer.py $ARGS
         env:
           PYTHONUNBUFFERED: "1"
