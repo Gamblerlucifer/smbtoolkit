@@ -1,5 +1,5 @@
 # SMBKits — 마스터플랜 & 실행 체크리스트 v6.0
-> 최초 작성: 2026-05-16 | 최종 업데이트: 2026-05-18
+> 최초 작성: 2026-05-16 | 최종 업데이트: 2026-05-19
 > v6.1: Gemini·GPT 전략 보고서 핵심 반영 (Supabase 스키마·프롬프트·대시보드 원칙)
 
 ---
@@ -19,6 +19,54 @@
 
 → 지금: Phase 1 리드 DB 구축 준비
 ```
+
+### 2026-05-19 작업 내역 — Phase 2 콜드 이메일 파이프라인 완성
+
+**scrapers/gemini_scraper.py**
+- Gemini Search Grounding (`gemini-3.1-flash-lite`) → rating·website·email 일괄 추출
+- 4병렬 청크 · BATCH_SIZE 100 · 0.5~0.8s 딜레이
+- 503/429 exponential backoff (5s→10s→20s, 최대 3회)
+- `--min-confidence` 파라미터로 저신뢰도 website 저장 차단
+- hallucination 필터: 소셜/집계 도메인 17종 SOCIAL_EXCLUDE
+
+**scrapers/mailer.py** (신규 완성)
+- Gmail SMTP SSL (port 465) + App Password 3계정 순환 발송
+  - James Harrison (Reputation Response) · Alex Bennett (Local Positioning) · Sarah Mitchell (Brand Voice)
+- Gemini `temperature=1.2` → 매 발송마다 랜덤 제목·본문 생성
+- D0·D3·D10 시퀀스: `outreach_status` 컬럼으로 추적 (`d0:2026-05-20`)
+- HTML 서명: 이름·직책·smbkits.com 하이퍼링크·로고(28px) 자동 삽입
+- LANG_MAP: HK·TW·Macau→繁體中文, JP→日本語, KR→한국어, FR→Français 등
+- **중복 발송 방지**: 발송 전 `sending:{UTC ISO timestamp}` 선점 → 성공 시 확정, 실패 시 롤백
+- **Stale lock 복구**: 2시간 이상 sending 상태 = 크래시 판정 → d0 재시도
+- **Email_Logs 탭**: 발송 성공마다 timestamp·수신자·발신자·sequence·제목·본문200자 자동 적재
+- `--countries` 필터: 타임존별 국가 타겟팅
+- `CAMPAIGN_START = 2026-05-19` 기준 주차 자동 계산 (수동 override 가능)
+- Jitter: 0~45분 랜덤 슬립 → 실제 발송 07:43~08:28 현지 (footprint 방지)
+
+**.github/workflows/mailer.yml** (신규)
+- 화·수·목만 발송 (레스토랑 오너 reply율 최적 요일)
+- 6개 타임존 cron (현지 07:43 기준 UTC 환산, DST 반영):
+  - `43 22 * * 1,2,3` → Japan/Korea
+  - `43 23 * * 1,2,3` → Taiwan
+  - `43 5  * * 2,3,4` → France/Italy/Spain/Germany
+  - `43 6  * * 2,3,4` → UK
+  - `43 11 * * 2,3,4` → US East
+  - `43 14 * * 2,3,4` → US West
+- UTC hour로 발송 국가 자동 결정 (schedule), 수동 지정 가능 (dispatch)
+
+**.github/workflows/gemini_scraper.yml** (신규)
+- 3시간마다 자동 실행 (하루 8회)
+- 4병렬 청크 × limit 370 = 1,480건/일 (Search Grounding 1,500 RPD 무료 한도 내)
+
+**현재 DB 현황 (2026-05-19 기준)**
+- 전체: 18,906행
+- 이메일 보유: **125건** (발송 준비 완료)
+- 국가별 Top: HK 46건 · US 39건 · TW 8건 · MY 5건 · CA 4건 · JP/Macau/IT 각 3건
+
+**TODO**
+- [ ] Reply-To 헤더 추가 (`james@smbkits.com`) + Hostinger 3개 주소 포워딩 설정
+
+---
 
 ### 2026-05-18 작업 내역
 - JSON-LD 정리: `SoftwareApplication` + `AggregateOffer` 전 페이지 제거
@@ -286,9 +334,15 @@ Sheets outreach_status 업데이트
 | 수익 발생 후 | Google Workspace (mailer@smbkits.com) | 월 $6~ |
 
 ### 발송 준비
-- [ ] Gmail 발송 전용 계정 3개 생성 (smbkits_mailer / smbkits_mail / smbkits_mailing)
-- [ ] 각 계정 2단계 인증 → 앱 비밀번호 발급
-- [ ] 국가별 언어 분기: JP 리드 → 일본어 / US·EU 리드 → 영어
+- [x] Gmail 발송 전용 계정 3개 생성 (jamessmbkits / alexsmbkits / sarahsmbkits)
+- [x] 각 계정 2단계 인증 → 앱 비밀번호 발급 → GitHub Secrets 등록
+- [x] 국가별 언어 분기: LANG_MAP (HK·TW·Macau→繁體中文 포함)
+- [x] D0·D3·D10 시퀀스 Gemini 프롬프트 완성
+- [x] HTML 서명 (이름·직책·로고) 자동 삽입
+- [x] 중복 발송 방지 (sending: 선점 + 2hr stale 복구)
+- [x] Email_Logs 탭 자동 적재
+- [x] GitHub Actions 자동 스케줄 (화·수·목 · 현지 07:43 · 0~45분 jitter)
+- [ ] Reply-To 헤더 → Hostinger 포워딩 (james/alex/sarah@smbkits.com → 메인 계정)
 
 **워밍업 스케줄 (계정당 일별 발송량 — 랜덤 상승/하락으로 인간 패턴 위장):**
 ```
@@ -741,9 +795,11 @@ smbkits.com — 7 AI tools, starting at $9. Try one, cancel anytime.
 | 항목 | 내용 |
 |------|------|
 | 랜딩 폼 연결 | `REQUEST PRIVATE ACCESS` 버튼 현재 미연결. 수신 이메일 확정 후 Resend API + Next.js API Route로 연결 (`app/page.tsx`) |
-| Rating 데이터 | Google Places API 100/day 한도 + 결제수단 없음. 429 해제 후 undetected-chromedriver 로컬 실행으로 재시도 |
 | OG 이미지 | 현재 plain dark background. 텍스트/브랜딩 추가 필요 |
-| Cold email pipeline | Phase 2. Instantly.ai 세팅, 도메인 워밍업, SPF/DKIM/DMARC 설정 |
+| Reply-To + 포워딩 | mailer.py에 `msg["Reply-To"] = f"{name}@smbkits.com"` 추가 · Hostinger에서 3개 주소 → gamblerlucifer@gmail.com 포워딩 설정 |
+| 스크래퍼 지속 실행 | gemini_scraper.yml 3시간 주기 자동 실행 중 — 이메일 125건 → 지속 증가 예정 |
+| 첫 발송 모니터링 | 2026-05-20(화) 아침 첫 자동 발송 후 Email_Logs 탭·Gmail Sent 확인 |
+| 답장 대응 | 오너 답장 시 Email_Logs에서 발송 이력 확인 → 수동 클로징 |
 
 ---
 
