@@ -98,7 +98,22 @@ def days_since(status: str) -> int:
         return 0
 
 
-def generate_email(lead: dict, sequence: str) -> dict | None:
+# 국가 → 언어 매핑
+LANG_MAP = {
+    "Taiwan": "Traditional Chinese (繁體中文)",
+    "Japan":  "Japanese (日本語)",
+    "Korea":  "Korean (한국어)",
+    "France": "French (Français)",
+    "Italy":  "Italian (Italiano)",
+    "Spain":  "Spanish (Español)",
+    "Germany":"German (Deutsch)",
+}
+
+def get_lang(country: str) -> str:
+    return LANG_MAP.get(country, "English")
+
+
+def generate_email(lead: dict, sequence: str, sender_name: str = "James") -> dict | None:
     """Gemini로 개인화 이메일 생성 — 제목·내용 매번 다르게"""
     name    = lead.get("business_name", "")
     city    = lead.get("city", "")
@@ -106,34 +121,40 @@ def generate_email(lead: dict, sequence: str) -> dict | None:
     rating  = lead.get("google_rating", "")
     reviews = lead.get("review_count", "")
     neg_rev = lead.get("negative_review", "")
+    lang    = get_lang(country)
+    first_name = sender_name.split()[0]  # "James Harrison" → "James"
 
     if sequence == "d0":
         neg_section = (
-            f"Recent negative review snippet: \"{neg_rev[:200]}\""
+            f"Recent negative review text: \"{neg_rev[:200]}\""
             if neg_rev else "No negative review text available."
         )
         prompt = f"""You are writing a cold outreach email on behalf of SMBkits (smbkits.com),
 a private AI reputation management tool for premium independent restaurants.
 
+Sender: {sender_name} (sign off with first name only: {first_name})
 Target restaurant:
 - Name: {name}
 - Location: {city}, {country}
 - Google Rating: {rating} stars ({reviews} reviews)
 - {neg_section}
+- Write in: {lang}
 
-Write a SHORT, conversational cold email. Requirements:
-1. Mention you ran a quick analysis of their Google reviews
-2. Include the rating and review count naturally (1 sentence)
-3. If negative review text is available, include a brief example AI-drafted response (2-3 sentences)
-4. Mention smbkits.com — 7 AI tools for premium restaurants, starting at $19/month
-5. End with a soft, no-pressure CTA
+Write a SHORT, conversational cold email. Follow this exact flow:
+1. Opening: mention you came across {name} and note their rating + review count naturally (1-2 sentences)
+2. Review reference: quote a short phrase DIRECTLY from the negative review text using "quotation marks". Attribute it explicitly to "a recent Google review". Make it feel like you actually read it.
+3. Empathy bridge: acknowledge why it is difficult for any restaurant to receive that kind of feedback — connect problem to reality (1 sentence). Do NOT present an AI-drafted reply.
+4. Problem → solution bridge: mention that many owners simply do not have time to respond to every review consistently, especially during busy service — then naturally introduce smbkits.com as the reason it was built. (2 sentences)
+5. Sign off: "Best,\\n{first_name}" — ALWAYS use {first_name}, never invent another name.
 
 STRICT RULES:
-- Subject: personal and curiosity-driven, NOT salesy. Never use: "partnership", "opportunity", "collaboration", "exciting"
-- Body: under 150 words, plain text only, no bullet points, no bold
-- Sound like a real human, not a marketer
-- Every email must use different wording, structure, and opening — never repeat phrasing
-- Sign off with just a first name
+- Subject: personal, curiosity-driven. Never use: "partnership", "opportunity", "collaboration", "exciting"
+- Body: under 160 words, plain text, no bullet points, no bold
+- Line breaks between every paragraph
+- Review quote MUST use actual words from the negative review — never paraphrase generically
+- Never say "our AI could draft a reply" — too salesy
+- Sound like a real human who read their reviews, not a marketer
+- Every email must use different wording and structure
 
 Respond ONLY in this exact JSON format (no markdown):
 {{"subject": "...", "body": "..."}}"""
@@ -141,14 +162,18 @@ Respond ONLY in this exact JSON format (no markdown):
     elif sequence == "d3":
         prompt = f"""Write a very short follow-up cold email for {name} in {city}.
 
-Context: You emailed them 3 days ago about their Google reviews and smbkits.com (AI reputation tool).
+Sender first name: {first_name} (sign off with {first_name} only — never use another name)
+Write in: {lang}
+
+Context: {first_name} emailed them 3 days ago about their Google reviews and smbkits.com.
 They haven't replied yet.
 
 RULES:
 - 2-3 sentences only
-- Casual, human tone — like a real person checking in
+- Casual, human tone
 - Reference the previous email naturally
 - No pressure
+- Sign off: "Best,\\n{first_name}"
 - Different wording every time
 
 Respond ONLY in JSON (no markdown):
@@ -157,14 +182,18 @@ Respond ONLY in JSON (no markdown):
     elif sequence == "d10":
         prompt = f"""Write a final short breakup-style cold email for {name} in {city}.
 
-Context: Last follow-up. They have {reviews} Google reviews and a {rating} star rating.
-You've emailed them twice already about smbkits.com.
+Sender first name: {first_name} (sign off with {first_name} only — never use another name)
+Write in: {lang}
+
+Context: Last follow-up. {reviews} Google reviews, {rating} star rating.
+{first_name} has emailed them twice already about smbkits.com.
 
 RULES:
 - 2-3 sentences only
 - Mention one specific stat ({reviews} reviews OR {rating} stars)
 - Mention smbkits.com once
-- Friendly, no hard feelings — you're moving on
+- Friendly, no hard feelings
+- Sign off: "Best,\\n{first_name}"
 - Different wording every time
 
 Respond ONLY in JSON (no markdown):
@@ -215,8 +244,30 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--week",    type=int,  default=1,     help="워밍업 주차 (1~6)")
-    parser.add_argument("--dry-run", action="store_true",      help="실제 발송 없이 출력만")
+    parser.add_argument("--dry-run",    action="store_true", help="실제 발송 없이 출력만")
+    parser.add_argument("--test-email", type=str, default="", help="테스트 발송 주소 (Sheets 무시)")
     args = parser.parse_args()
+
+    # ── 테스트 발송 모드 ─────────────────────────────────────
+    if args.test_email:
+        account = random.choice(SMTP_ACCOUNTS)
+        fake_lead = {
+            "business_name":  "Fleur de Sel",
+            "city":           "Taichung",
+            "country":        "Taiwan",
+            "google_rating":  "4.4",
+            "review_count":   "1405",
+            "negative_review": "The service was slow and the portion was smaller than expected for the price.",
+        }
+        print(f"[TEST] → {args.test_email} | 발송자: {account['name']}\n")
+        content = generate_email(fake_lead, "d0", sender_name=account["name"])
+        if content:
+            print(f"제목: {content['subject']}\n")
+            print(f"내용:\n{content['body']}\n")
+            success = send_email(account, args.test_email, content["subject"], content["body"])
+            print("✅ 발송 완료" if success else "❌ 발송 실패")
+        return
+    # ─────────────────────────────────────────────────────────
 
     week   = max(1, min(6, args.week))
     lo, hi = WARMUP[week]
@@ -287,7 +338,7 @@ def main():
         print(f"[{sequence.upper()}] {lead['business_name']} → {to_email}")
         print(f"  발송자: {account['name']} <{account['email']}>")
 
-        content = generate_email(lead, sequence)
+        content = generate_email(lead, sequence, sender_name=account["name"])
         if not content:
             continue
 
