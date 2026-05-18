@@ -721,4 +721,17 @@ smbkits.com — 7 AI tools, starting at $9. Try one, cancel anytime.
 
 ---
 
+---
+
+## 미완성 TODO
+
+| 항목 | 내용 |
+|------|------|
+| 랜딩 폼 연결 | `REQUEST PRIVATE ACCESS` 버튼 현재 미연결. 수신 이메일 확정 후 Resend API + Next.js API Route로 연결 (`app/page.tsx`) |
+| Rating 데이터 | Google Places API 100/day 한도 + 결제수단 없음. 429 해제 후 undetected-chromedriver 로컬 실행으로 재시도 |
+| OG 이미지 | 현재 plain dark background. 텍스트/브랜딩 추가 필요 |
+| Cold email pipeline | Phase 2. Instantly.ai 세팅, 도메인 워밍업, SPF/DKIM/DMARC 설정 |
+
+---
+
 *구 파일: SMBKits_마스터플랜_v5.md · SMBKits_Todo.md → 이 파일로 통합*

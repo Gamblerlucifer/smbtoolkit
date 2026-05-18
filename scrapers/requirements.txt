@@ -3,4 +3,5 @@ gspread
 google-auth
 python-dotenv
 requests[socks]
+httpx
 stem
