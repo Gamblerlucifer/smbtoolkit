@@ -1,14 +1,9 @@
 """
-SMBkits — TripAdvisor Scraper
-업체명 + 도시 → TripAdvisor 검색 → 상세 페이지 → 이메일/전화/웹사이트 추출
+SMBkits — TripAdvisor Fine Dining Scraper
+파인다이닝 목록 → 페이지네이션 → 상세 페이지 → 추출 → 시트 저장
 """
 
-import os
-import sys
-import re
-import asyncio
-import random
-import gspread
+import os, sys, re, asyncio, random, gspread
 from playwright.async_api import async_playwright
 from google.oauth2.service_account import Credentials
 from dotenv import load_dotenv
@@ -16,13 +11,25 @@ from dotenv import load_dotenv
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 load_dotenv("scrapers/.env", override=True)
 
-DAILY_LIMIT = 500
-
-SCOPES = [
-    "https://spreadsheets.google.com/feeds",
-    "https://www.googleapis.com/auth/drive",
+# ── 도시 설정 (geo ID는 TripAdvisor URL에서 확인) ──────────────
+CITIES = [
+    {"name": "London",    "country": "UK",          "geo": 186338},
+    {"name": "Paris",     "country": "France",      "geo": 187147},
+    {"name": "Tokyo",     "country": "Japan",       "geo": 298184},
+    {"name": "New York",  "country": "USA",         "geo": 60763},
+    {"name": "Singapore", "country": "Singapore",   "geo": 294260},
+    {"name": "Hong Kong", "country": "Hong Kong",   "geo": 294217},
+    {"name": "Dubai",     "country": "UAE",         "geo": 295424},
+    {"name": "Barcelona", "country": "Spain",       "geo": 187497},
+    {"name": "Rome",      "country": "Italy",       "geo": 187791},
+    {"name": "Sydney",    "country": "Australia",   "geo": 255060},
 ]
 
+PAGE_SIZE   = 30    # TripAdvisor 페이지당 업체 수
+MAX_PAGES   = 10    # 도시당 최대 페이지 (도시당 300개)
+DELAY       = (3, 6)
+
+SCOPES = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 creds = Credentials.from_service_account_file(
     os.environ.get("CREDS_FILE", "scrapers/credentials.json"), scopes=SCOPES
 )
@@ -30,103 +37,81 @@ gc    = gspread.authorize(creds)
 sheet = gc.open_by_key(os.environ["SHEET_ID"]).worksheet(os.environ["SHEET_NAME"])
 
 headers = sheet.row_values(1)
+def col(name): return headers.index(name) + 1
 
-def ensure_col(name):
-    if name not in headers:
-        sheet.update_cell(1, len(headers) + 1, name)
-        headers.append(name)
+# 이미 수집된 TripAdvisor URL 목록 (중복 방지)
+existing = set()
+for rec in sheet.get_all_records():
+    url = rec.get("tripadvisor_url", "")
+    if url: existing.add(url)
+print(f"기존 수집: {len(existing)}개\n")
 
-def col(name):
-    return headers.index(name) + 1
+def list_url(geo, offset=0):
+    return (
+        f"https://www.tripadvisor.com/FindRestaurants"
+        f"?geo={geo}&establishmentTypes=10591&priceTypes=10954"
+        f"&broadened=false&offset={offset}"
+    )
 
-ensure_col("phone")
-ensure_col("scraper_done")
-
-web_col     = col("website")
-email_col   = col("email")
-phone_col   = col("phone")
-insta_col   = col("instagram")
-rating_col  = col("google_rating")
-reviews_col = col("review_count")
-done_col    = col("scraper_done")
-
-# scraper_done 없는 행만 타겟
-all_records = sheet.get_all_records()
-print(f"총 {len(all_records)}개 리드 탐색 중...")
-
-targets = []
-for i, rec in enumerate(all_records, start=2):
-    if not rec.get("scraper_done"):
-        targets.append({
-            "row": i,
-            "name": rec.get("business_name", ""),
-            "city": rec.get("city", ""),
-            "country": rec.get("country", ""),
-        })
-    if len(targets) >= DAILY_LIMIT:
-        break
-
-print(f"미처리: {len(targets)}개\n")
-
-async def scrape_one(page, name, city):
-    result = {"email": "", "website": "", "phone": "", "rating": None, "reviews": None}
-
+async def get_detail(page, url, city_name, country):
+    row = {
+        "business_name": "", "cuisine": "", "price_range": "",
+        "city": city_name,   "country": country, "address": "",
+        "email": "", "website": "", "phone": "",
+        "rating": "", "review_count": "", "tripadvisor_url": url,
+        "outreach_status": "", "last_sent_at": "", "scraper_done": "Y",
+    }
     try:
-        # TripAdvisor 검색
-        query = f"{name} {city}".replace(" ", "%20")
-        await page.goto(
-            f"https://www.tripadvisor.com/Search?q={query}&searchSessionId=x&geo=1",
-            wait_until="domcontentloaded", timeout=20000
-        )
+        await page.goto(url, wait_until="domcontentloaded", timeout=20000)
         await page.wait_for_timeout(random.randint(2000, 3500))
 
-        # 첫 번째 레스토랑 결과 클릭
-        result_link = await page.query_selector("a[href*='/Restaurant_Review']")
-        if not result_link:
-            return result
+        # 이름
+        el = await page.query_selector("h1")
+        if el: row["business_name"] = (await el.inner_text()).strip()
 
-        href = await result_link.get_attribute("href")
-        detail_url = "https://www.tripadvisor.com" + href if href.startswith("/") else href
-        await page.goto(detail_url, wait_until="domcontentloaded", timeout=20000)
-        await page.wait_for_timeout(random.randint(2000, 3000))
-
-        html = await page.content()
-
-        # 이메일 (mailto:)
-        mailto = await page.query_selector("a[href^='mailto:']")
-        if mailto:
-            href = await mailto.get_attribute("href")
-            result["email"] = href.replace("mailto:", "").split("?")[0].strip()
+        # 이메일
+        el = await page.query_selector("a[href^='mailto:']")
+        if el:
+            href = await el.get_attribute("href")
+            row["email"] = href.replace("mailto:", "").split("?")[0].strip()
 
         # 웹사이트
-        web_el = await page.query_selector("a[data-item-type='website'], a[href*='__sessionSig']:not([href*='tripadvisor'])")
-        if not web_el:
-            # data-automation="WebsiteLink" 패턴
-            web_el = await page.query_selector("[data-automation='WebsiteLink']")
-        if web_el:
-            w = await web_el.get_attribute("href") or ""
-            if w and "tripadvisor" not in w:
-                result["website"] = w.split("?")[0]
+        el = await page.query_selector("a[data-automation='restaurantsWebsiteButton']")
+        if el:
+            href = await el.get_attribute("href") or ""
+            # TripAdvisor redirect URL에서 실제 URL 추출
+            m = re.search(r"url=([^&]+)", href)
+            row["website"] = m.group(1) if m else href.split("?")[0]
 
-        # 전화번호
-        phone_el = await page.query_selector("a[href^='tel:']")
-        if phone_el:
-            result["phone"] = (await phone_el.get_attribute("href")).replace("tel:", "").strip()
-        else:
-            m = re.search(r"\+[\d\s\-().]{7,20}", html)
-            if m:
-                result["phone"] = m.group(0).strip()
+        # 전화
+        el = await page.query_selector("a[href^='tel:']")
+        if el:
+            href = await el.get_attribute("href")
+            row["phone"] = href.replace("tel:", "").strip()
 
-        # 평점/리뷰수
-        m = re.search(r'"aggregateRating".*?"ratingValue"\s*:\s*([\d.]+).*?"reviewCount"\s*:\s*(\d+)', html, re.DOTALL)
-        if m:
-            result["rating"]  = float(m.group(1))
-            result["reviews"] = int(m.group(2))
+        # 주소
+        el = await page.query_selector("button[data-automation='restaurantsMapLinkOnName'], span[data-automation='restaurantsMapLinkOnName']")
+        if el: row["address"] = (await el.inner_text()).strip()
+
+        # 평점 / 리뷰수 (JSON-LD)
+        html = await page.content()
+        m = re.search(r'"ratingValue"\s*:\s*([\d.]+)', html)
+        if m: row["rating"] = float(m.group(1))
+        m = re.search(r'"reviewCount"\s*:\s*(\d+)', html)
+        if m: row["review_count"] = int(m.group(1))
+
+        # 요리 종류
+        m = re.search(r'"servesCuisine"\s*:\s*"([^"]+)"', html)
+        if m: row["cuisine"] = m.group(1)
+
+        # 가격대 ($$$$)
+        m = re.search(r'priceRange["\s:]+(\$+)', html)
+        if m: row["price_range"] = m.group(1)
 
     except Exception as e:
         print(f"    오류: {str(e)[:80]}")
 
-    return result
+    return row
 
 async def main():
     async with async_playwright() as p:
@@ -134,37 +119,64 @@ async def main():
         context = await browser.new_context(
             user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
             viewport={"width": 1280, "height": 800},
-            locale="ko-KR",
+            locale="en-US",
         )
         page = await context.new_page()
+        total = 0
 
-        found = 0
-        for rec in targets:
-            row_num = rec["row"]
-            name    = rec["name"]
-            city    = rec["city"]
-            print(f"[{row_num}] {name[:30]}")
+        for city in CITIES:
+            print(f"\n{'='*40}")
+            print(f"{city['name']} ({city['country']}) 수집 시작")
+            print(f"{'='*40}")
+            city_count = 0
 
-            r = await scrape_one(page, name, city)
+            for page_idx in range(MAX_PAGES):
+                offset = page_idx * PAGE_SIZE
+                await page.goto(list_url(city["geo"], offset), wait_until="domcontentloaded", timeout=20000)
+                await page.wait_for_timeout(random.randint(2000, 3000))
 
-            updates = []
-            if r["email"]:   updates.append((row_num, email_col,   r["email"]));   found += 1
-            if r["website"]: updates.append((row_num, web_col,     r["website"]))
-            if r["phone"]:   updates.append((row_num, phone_col,   r["phone"]))
-            if r["rating"]:  updates.append((row_num, rating_col,  r["rating"]))
-            if r["reviews"]: updates.append((row_num, reviews_col, r["reviews"]))
-            updates.append((row_num, done_col, "Y"))
+                # 목록에서 상세 링크 수집
+                links = await page.query_selector_all("a[href*='/Restaurant_Review']")
+                hrefs = []
+                for link in links:
+                    href = await link.get_attribute("href")
+                    if href and "/Restaurant_Review" in href:
+                        full = "https://www.tripadvisor.com" + href if href.startswith("/") else href
+                        full = full.split("?")[0]
+                        if full not in existing and full not in hrefs:
+                            hrefs.append(full)
 
-            sheet.batch_update([
-                {"range": gspread.utils.rowcol_to_a1(rw, c), "values": [[v]]}
-                for rw, c, v in updates
-            ])
+                if not hrefs:
+                    print(f"  페이지 {page_idx+1}: 결과 없음, 종료")
+                    break
 
-            print(f"  email:{r['email'] or '-'} | web:{r['website'][:35] or '-'} | tel:{r['phone'] or '-'}")
-            await asyncio.sleep(random.uniform(3, 5))
+                print(f"  페이지 {page_idx+1}: {len(hrefs)}개 업체")
+
+                for url in hrefs:
+                    row = await get_detail(page, url, city["name"], city["country"])
+                    existing.add(url)
+
+                    sheet.append_row([row[h] for h in [
+                        "business_name", "cuisine", "price_range",
+                        "city", "country", "address",
+                        "email", "website", "phone",
+                        "rating", "review_count", "tripadvisor_url",
+                        "outreach_status", "last_sent_at", "scraper_done",
+                    ]])
+
+                    status = "O" if row["email"] else "-"
+                    print(f"    [{status}] {row['business_name'][:30]:<30} {row['email'] or '이메일없음'}")
+
+                    city_count += 1
+                    total += 1
+                    await asyncio.sleep(random.uniform(*DELAY))
+
+                await asyncio.sleep(random.uniform(*DELAY))
+
+            print(f"  {city['name']} 완료: {city_count}개")
 
         await browser.close()
-    print(f"\n완료 — {found}/{len(targets)}개 이메일 수집")
+    print(f"\n전체 완료 — {total}개 수집")
 
 if __name__ == "__main__":
     asyncio.run(main())
