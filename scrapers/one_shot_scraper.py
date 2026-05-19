@@ -98,7 +98,6 @@ for row_num, name, city, country in targets:
             model=MODEL,
             contents=PROMPT.format(name=name, city=city, country=country),
             config=types.GenerateContentConfig(
-                tools=[types.Tool(google_search=types.GoogleSearch())],
                 response_mime_type="application/json",
                 temperature=0,
             ),
