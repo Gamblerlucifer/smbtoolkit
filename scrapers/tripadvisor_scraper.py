@@ -5,6 +5,7 @@ SMBkits — TripAdvisor Fine Dining Scraper
 
 import os, sys, re, asyncio, random, gspread
 from playwright.async_api import async_playwright
+from playwright_stealth import stealth_async
 from google.oauth2.service_account import Credentials
 from dotenv import load_dotenv
 
@@ -123,6 +124,7 @@ async def main():
             locale="en-US",
         )
         page = await context.new_page()
+        await stealth_async(page)
         total = 0
 
         for city in CITIES:
