@@ -2,7 +2,7 @@ name: SMBkits Gemini Scraper
 
 on:
   schedule:
-    - cron: '0 */3 * * *'   # 3시간마다 (하루 8회)
+    - cron: '0 2 * * *'   # 하루 1회 (4청크 × 370 = 1,480건 → 무료 한도 1,500 RPD 이내)
   workflow_dispatch:
     inputs:
       total_chunks:
