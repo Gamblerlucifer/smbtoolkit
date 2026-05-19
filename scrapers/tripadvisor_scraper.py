@@ -138,7 +138,10 @@ async def main():
                 try:
                     await page.wait_for_selector("a[href*='/Restaurant_Review']", timeout=15000)
                 except Exception:
-                    print(f"  페이지 {page_idx+1}: 결과 없음, 종료")
+                    html = await page.content()
+                    with open(f"debug_{city['name']}_{page_idx}.html", "w", encoding="utf-8") as f:
+                        f.write(html)
+                    print(f"  페이지 {page_idx+1}: 결과 없음 → debug_{city['name']}_{page_idx}.html 저장")
                     break
 
                 # 목록에서 상세 링크 수집
