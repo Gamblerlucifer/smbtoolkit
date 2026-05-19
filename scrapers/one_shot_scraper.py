@@ -21,7 +21,7 @@ load_dotenv("scrapers/.env", override=True)
 
 BATCH_SIZE  = 15      # 1회 API 호출당 처리 업체 수
 DAILY_LIMIT = 1490    # RPD 한도 (1,500 - 안전마진 10)
-RPM_DELAY   = 5.0
+RPM_DELAY   = 15.0    # 15초 간격 = 분당 4회 (Search Grounding RPM 안전)
 MODEL       = "gemini-2.5-flash"
 
 SCOPES = [
@@ -146,16 +146,30 @@ for b_idx, batch in enumerate(batches[:DAILY_LIMIT]):
     print(f"[배치 {b_idx+1}/{min(len(batches), DAILY_LIMIT)}] {len(batch)}개 처리 중...")
 
     try:
-        resp = gemini.models.generate_content(
-            model=MODEL,
-            contents=PROMPT_TEMPLATE.format(
-                restaurant_list=restaurant_list,
-                count=len(batch)
-            ),
-            config=types.GenerateContentConfig(
-                tools=[{"google_search": {}}],
-            ),
-        )
+        # 429 시 최대 3회 재시도
+        resp = None
+        for attempt in range(3):
+            try:
+                resp = gemini.models.generate_content(
+                    model=MODEL,
+                    contents=PROMPT_TEMPLATE.format(
+                        restaurant_list=restaurant_list,
+                        count=len(batch)
+                    ),
+                    config=types.GenerateContentConfig(
+                        tools=[{"google_search": {}}],
+                    ),
+                )
+                break
+            except Exception as e:
+                if "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e):
+                    wait = (attempt + 1) * 30
+                    print(f"  429 → {wait}초 대기 후 재시도...")
+                    time.sleep(wait)
+                else:
+                    raise
+        if not resp:
+            raise Exception("최대 재시도 초과")
         results = parse_array(resp.text)
 
         sheet_updates = []
