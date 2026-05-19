@@ -22,7 +22,15 @@ load_dotenv("scrapers/.env", override=True)
 BATCH_SIZE  = 15      # 1회 API 호출당 처리 업체 수
 DAILY_LIMIT = 1490    # RPD 한도 (1,500 - 안전마진 10)
 RPM_DELAY   = 15.0    # 15초 간격 = 분당 4회 (Search Grounding RPM 안전)
-MODEL       = "gemini-2.5-flash"
+
+# 모델 폴백 체인: (model_id, use_search_grounding)
+# 2.5 Flash RPD 소진 → 3.1 Flash Lite → Gemma
+MODELS = [
+    ("gemini-2.5-flash",      True),   # Search Grounding, RPD ~20
+    ("gemini-3.1-flash-lite", False),  # 텍스트만, RPD 500
+    ("gemma-3-27b-it",        False),  # 텍스트만, RPD 높음
+]
+current_model_idx = 0
 
 SCOPES = [
     "https://spreadsheets.google.com/feeds",
@@ -146,30 +154,43 @@ for b_idx, batch in enumerate(batches[:DAILY_LIMIT]):
     print(f"[배치 {b_idx+1}/{min(len(batches), DAILY_LIMIT)}] {len(batch)}개 처리 중...")
 
     try:
-        # 429 시 최대 3회 재시도
+        # 모델 폴백 체인: 2.5 Flash → 3.1 Flash Lite → Gemma
+        global current_model_idx
         resp = None
-        for attempt in range(3):
-            try:
-                resp = gemini.models.generate_content(
-                    model=MODEL,
-                    contents=PROMPT_TEMPLATE.format(
-                        restaurant_list=restaurant_list,
-                        count=len(batch)
-                    ),
-                    config=types.GenerateContentConfig(
-                        tools=[{"google_search": {}}],
-                    ),
-                )
+        while current_model_idx < len(MODELS):
+            model_id, use_grounding = MODELS[current_model_idx]
+            config = types.GenerateContentConfig(
+                tools=[{"google_search": {}}] if use_grounding else None
+            )
+            succeeded = False
+            for attempt in range(3):
+                try:
+                    resp = gemini.models.generate_content(
+                        model=model_id,
+                        contents=PROMPT_TEMPLATE.format(
+                            restaurant_list=restaurant_list,
+                            count=len(batch)
+                        ),
+                        config=config,
+                    )
+                    succeeded = True
+                    break
+                except Exception as e:
+                    err = str(e)
+                    if "429" in err or "RESOURCE_EXHAUSTED" in err:
+                        wait = (attempt + 1) * 30
+                        print(f"  [{model_id}] 429 → {wait}초 대기 후 재시도...")
+                        time.sleep(wait)
+                    else:
+                        raise
+            if succeeded:
                 break
-            except Exception as e:
-                if "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e):
-                    wait = (attempt + 1) * 30
-                    print(f"  429 → {wait}초 대기 후 재시도...")
-                    time.sleep(wait)
-                else:
-                    raise
+            # 이 모델 RPD/RPM 소진 → 다음 모델로
+            print(f"  [{model_id}] RPD 소진 → 다음 모델로 전환")
+            current_model_idx += 1
+
         if not resp:
-            raise Exception("최대 재시도 초과")
+            raise Exception("모든 모델 한도 초과")
         results = parse_array(resp.text)
 
         sheet_updates = []
