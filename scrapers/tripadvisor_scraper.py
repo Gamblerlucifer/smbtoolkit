@@ -4,6 +4,7 @@ SMBkits — TripAdvisor Fine Dining Scraper
 """
 
 import os, sys, re, asyncio, random, gspread
+import browser_cookie3
 from playwright.async_api import async_playwright
 from google.oauth2.service_account import Credentials
 from dotenv import load_dotenv
@@ -114,15 +115,32 @@ async def get_detail(page, url, city_name, country):
 
     return row
 
+def get_chrome_cookies():
+    """Chrome에서 TripAdvisor 쿠키 추출"""
+    try:
+        jar = browser_cookie3.chrome(domain_name=".tripadvisor.com")
+        cookies = []
+        for c in jar:
+            cookies.append({
+                "name": c.name,
+                "value": c.value,
+                "domain": c.domain,
+                "path": c.path,
+                "secure": c.secure,
+            })
+        print(f"Chrome 쿠키 {len(cookies)}개 로드")
+        return cookies
+    except Exception as e:
+        print(f"쿠키 로드 실패: {e}")
+        return []
+
 async def main():
+    chrome_cookies = get_chrome_cookies()
+
     async with async_playwright() as p:
         browser = await p.chromium.launch(
             headless=False,
-            args=[
-                "--disable-blink-features=AutomationControlled",
-                "--no-sandbox",
-                "--disable-dev-shm-usage",
-            ]
+            args=["--disable-blink-features=AutomationControlled"]
         )
         context = await browser.new_context(
             user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
@@ -130,8 +148,9 @@ async def main():
             locale="en-US",
             extra_http_headers={"Accept-Language": "en-US,en;q=0.9"},
         )
-        # webdriver 감지 우회
         await context.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+        if chrome_cookies:
+            await context.add_cookies(chrome_cookies)
         page = await context.new_page()
         total = 0
 
