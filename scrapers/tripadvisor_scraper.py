@@ -62,7 +62,7 @@ async def get_detail(page, url, city_name, country):
         "outreach_status": "", "last_sent_at": "", "scraper_done": "Y",
     }
     try:
-        await page.goto(url, wait_until="domcontentloaded", timeout=30000)
+        await page.goto(url, wait_until="networkidle", timeout=30000)
         await page.wait_for_selector("h1", timeout=15000)
         await page.wait_for_timeout(random.randint(1500, 2500))
 
@@ -133,7 +133,7 @@ async def main():
 
             for page_idx in range(MAX_PAGES):
                 offset = page_idx * PAGE_SIZE
-                await page.goto(list_url(city["geo"], offset), wait_until="domcontentloaded", timeout=30000)
+                await page.goto(list_url(city["geo"], offset), wait_until="networkidle", timeout=30000)
                 # 레스토랑 링크 뜰 때까지 대기
                 try:
                     await page.wait_for_selector("a[href*='/Restaurant_Review']", timeout=15000)
