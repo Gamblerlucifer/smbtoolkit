@@ -149,6 +149,14 @@ async def main():
                     href = await link.get_attribute("href")
                     if not href or "/Restaurant_Review" not in href:
                         continue
+                    # 스폰서 링크 제외
+                    try:
+                        card = await link.evaluate_handle("el => el.closest('[data-test]') || el.parentElement.parentElement.parentElement")
+                        card_text = await card.evaluate("el => el.innerText")
+                        if "스폰서" in card_text or "Sponsored" in card_text:
+                            continue
+                    except Exception:
+                        pass
                     full = "https://www.tripadvisor.com" + href if href.startswith("/") else href
                     full = full.split("?")[0]
                     if full not in existing and full not in seen:
