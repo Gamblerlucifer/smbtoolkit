@@ -9,6 +9,7 @@ import sys
 import re
 import json
 import time
+import requests
 import gspread
 from google import genai
 from google.genai import types
@@ -88,6 +89,41 @@ Rules:
 - google_rating: Google Maps float or null
 - review_count: integer or null"""
 
+IMG_EXT    = (".png",".jpg",".jpeg",".gif",".svg",".webp",".ico")
+SPAM_WORDS = ["noreply","no-reply","example","sentry","wixpress",
+              "wordpress","cloudflare","support@","admin@","postmaster@"]
+SOCIAL_EXCLUDE = ["instagram.com","facebook.com","twitter.com","tripadvisor.com",
+                  "yelp.com","google.com","michelin.com","booking.com"]
+
+def clean_instagram(val):
+    """URL → @handle 변환"""
+    if not val:
+        return ""
+    m = re.search(r"instagram\.com/([A-Za-z0-9_.]+)", val)
+    if m:
+        return "@" + m.group(1).rstrip("/")
+    if val.startswith("@"):
+        return val
+    return ""
+
+def crawl_email(url):
+    """website 크롤링으로 email 추출"""
+    if not url or any(s in url for s in SOCIAL_EXCLUDE):
+        return ""
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+    for target in [url, url.rstrip("/") + "/contact", url.rstrip("/") + "/about"]:
+        try:
+            res = requests.get(target, headers=headers, timeout=8)
+            emails = re.findall(r"[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}", res.text)
+            for e in emails:
+                el = e.lower()
+                if any(el.endswith(x) for x in IMG_EXT): continue
+                if any(x in el for x in SPAM_WORDS): continue
+                return e
+        except Exception:
+            continue
+    return ""
+
 def parse_json(text):
     # ```json ... ``` 블록 추출
     m = re.search(r"```json\s*(\{.*?\})\s*```", text, re.DOTALL)
@@ -111,11 +147,20 @@ for row_num, name, city, country in targets:
         )
         result = parse_json(resp.text)
 
+        website   = result.get("website") or ""
+        email     = result.get("email") or ""
+        instagram = clean_instagram(result.get("instagram") or "")
+        phone     = result.get("phone") or ""
+
+        # email 없으면 website 크롤링
+        if website and not email:
+            email = crawl_email(website)
+
         updates = []
-        if result.get("website"):      updates.append((row_num, web_col,     result["website"]))
-        if result.get("email"):        updates.append((row_num, email_col,   result["email"]))
-        if result.get("phone"):        updates.append((row_num, phone_col,   result["phone"]))
-        if result.get("instagram"):    updates.append((row_num, insta_col,   result["instagram"]))
+        if website:                    updates.append((row_num, web_col,     website))
+        if email:                      updates.append((row_num, email_col,   email))
+        if phone:                      updates.append((row_num, phone_col,   phone))
+        if instagram:                  updates.append((row_num, insta_col,   instagram))
         if result.get("google_rating"):updates.append((row_num, rating_col,  result["google_rating"]))
         if result.get("review_count"): updates.append((row_num, reviews_col, result["review_count"]))
 
@@ -125,10 +170,7 @@ for row_num, name, city, country in targets:
                 for r, c, v in updates
             ])
 
-        print(f"  web:{result.get('website') or '-'} | "
-              f"email:{result.get('email') or '-'} | "
-              f"ig:{result.get('instagram') or '-'} | "
-              f"tel:{result.get('phone') or '-'}")
+        print(f"  web:{website or '-'} | email:{email or '-'} | ig:{instagram or '-'} | tel:{phone or '-'}")
 
     except Exception as e:
         print(f"  FAIL: {str(e)[:120]}")
