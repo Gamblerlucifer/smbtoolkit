@@ -138,19 +138,14 @@ async def main():
     chrome_cookies = get_chrome_cookies()
 
     async with async_playwright() as p:
-        browser = await p.chromium.launch(
+        # 실제 Chrome 프로필 사용 → DataDome 완전 우회
+        CHROME_PROFILE = os.path.expandvars(r"%LOCALAPPDATA%\Google\Chrome\User Data")
+        context = await p.chromium.launch_persistent_context(
+            user_data_dir=CHROME_PROFILE,
+            channel="chrome",
             headless=False,
-            args=["--disable-blink-features=AutomationControlled"]
+            args=["--disable-blink-features=AutomationControlled"],
         )
-        context = await browser.new_context(
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-            viewport={"width": 1280, "height": 800},
-            locale="en-US",
-            extra_http_headers={"Accept-Language": "en-US,en;q=0.9"},
-        )
-        await context.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-        if chrome_cookies:
-            await context.add_cookies(chrome_cookies)
         page = await context.new_page()
         total = 0
 
@@ -224,7 +219,7 @@ async def main():
 
             print(f"  {city['name']} 완료: {city_count}개")
 
-        await browser.close()
+        await context.close()
     print(f"\n전체 완료 — {total}개 수집")
 
 if __name__ == "__main__":
