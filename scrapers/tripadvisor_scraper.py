@@ -62,8 +62,9 @@ async def get_detail(page, url, city_name, country):
         "outreach_status": "", "last_sent_at": "", "scraper_done": "Y",
     }
     try:
-        await page.goto(url, wait_until="domcontentloaded", timeout=20000)
-        await page.wait_for_timeout(random.randint(2000, 3500))
+        await page.goto(url, wait_until="domcontentloaded", timeout=30000)
+        await page.wait_for_selector("h1", timeout=15000)
+        await page.wait_for_timeout(random.randint(1500, 2500))
 
         # 이름
         el = await page.query_selector("h1")
@@ -132,22 +133,30 @@ async def main():
 
             for page_idx in range(MAX_PAGES):
                 offset = page_idx * PAGE_SIZE
-                await page.goto(list_url(city["geo"], offset), wait_until="domcontentloaded", timeout=20000)
-                await page.wait_for_timeout(random.randint(2000, 3000))
+                await page.goto(list_url(city["geo"], offset), wait_until="domcontentloaded", timeout=30000)
+                # 레스토랑 링크 뜰 때까지 대기
+                try:
+                    await page.wait_for_selector("a[href*='/Restaurant_Review']", timeout=15000)
+                except Exception:
+                    print(f"  페이지 {page_idx+1}: 결과 없음, 종료")
+                    break
 
                 # 목록에서 상세 링크 수집
                 links = await page.query_selector_all("a[href*='/Restaurant_Review']")
                 hrefs = []
+                seen = set()
                 for link in links:
                     href = await link.get_attribute("href")
-                    if href and "/Restaurant_Review" in href:
-                        full = "https://www.tripadvisor.com" + href if href.startswith("/") else href
-                        full = full.split("?")[0]
-                        if full not in existing and full not in hrefs:
-                            hrefs.append(full)
+                    if not href or "/Restaurant_Review" not in href:
+                        continue
+                    full = "https://www.tripadvisor.com" + href if href.startswith("/") else href
+                    full = full.split("?")[0]
+                    if full not in existing and full not in seen:
+                        seen.add(full)
+                        hrefs.append(full)
 
                 if not hrefs:
-                    print(f"  페이지 {page_idx+1}: 결과 없음, 종료")
+                    print(f"  페이지 {page_idx+1}: 새 업체 없음, 종료")
                     break
 
                 print(f"  페이지 {page_idx+1}: {len(hrefs)}개 업체")
