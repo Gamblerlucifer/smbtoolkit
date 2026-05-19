@@ -162,7 +162,7 @@ for b_idx, batch in enumerate(batches[:DAILY_LIMIT]):
                 tools=[{"google_search": {}}] if use_grounding else None
             )
             succeeded = False
-            for attempt in range(3):
+            for attempt in range(2):  # 동일 모델 최대 2회 (RPM 일시 초과만 재시도)
                 try:
                     resp = gemini.models.generate_content(
                         model=model_id,
@@ -177,14 +177,15 @@ for b_idx, batch in enumerate(batches[:DAILY_LIMIT]):
                 except Exception as e:
                     err = str(e)
                     if "429" in err or "RESOURCE_EXHAUSTED" in err:
-                        wait = (attempt + 1) * 30
-                        print(f"  [{model_id}] 429 → {wait}초 대기 후 재시도...")
-                        time.sleep(wait)
+                        if attempt == 0:
+                            print(f"  [{model_id}] 429 → 30초 대기 후 재시도...")
+                            time.sleep(30)
+                        # attempt 1 실패 = RPD 소진 → 즉시 다음 모델로
                     else:
                         raise
             if succeeded:
                 break
-            # 이 모델 RPD/RPM 소진 → 다음 모델로
+            # RPD 소진 → 다음 모델로
             print(f"  [{model_id}] RPD 소진 → 다음 모델로 전환")
             current_model_idx += 1
 
