@@ -155,7 +155,6 @@ for b_idx, batch in enumerate(batches[:DAILY_LIMIT]):
 
     try:
         # 모델 폴백 체인: 2.5 Flash → 3.1 Flash Lite → Gemma
-        global current_model_idx
         resp = None
         while current_model_idx < len(MODELS):
             model_id, use_grounding = MODELS[current_model_idx]
